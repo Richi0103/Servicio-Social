@@ -1,0 +1,157 @@
+CREATE DATABASE IF NOT EXISTS capitulos_tecnm_morelia
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+USE capitulos_tecnm_morelia;
+
+-- USUARIOS
+
+CREATE TABLE usuarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  numero_control VARCHAR(30),
+  nombre VARCHAR(80) NOT NULL,
+  apellidos VARCHAR(120) NOT NULL,
+  email VARCHAR(190) UNIQUE,
+  telefono VARCHAR(30),
+  password VARCHAR(255) NOT NULL,
+  tipo_usuario ENUM('Alumno','Profesor','Coordinadora') NOT NULL DEFAULT 'Alumno',
+  foto_perfil VARCHAR(255),
+  activo TINYINT(1) DEFAULT 1,
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CAPÍTULOS
+CREATE TABLE capitulos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  clave VARCHAR(30) UNIQUE,
+  nombre VARCHAR(150) NOT NULL,
+  descripcion TEXT,
+  area VARCHAR(150),
+  logo VARCHAR(255),
+  activo TINYINT(1) DEFAULT 1,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ALUMNOS EN CAPÍTULOS
+CREATE TABLE capitulos_alumnos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  capitulo_id INT NOT NULL,
+  alumno_id INT NOT NULL,
+  estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
+  fecha_ingreso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (capitulo_id, alumno_id),
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
+  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- PROFESORES / ORGANIZADORES EN CAPÍTULOS
+CREATE TABLE capitulos_profesores (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  capitulo_id INT NOT NULL,
+  profesor_id INT NOT NULL,
+  tipo ENUM('Encargado','Apoyo') DEFAULT 'Apoyo',
+  UNIQUE (capitulo_id, profesor_id),
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
+  FOREIGN KEY (profesor_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- ACTIVIDADES (cursos, talleres, eventos, conferencias)
+CREATE TABLE actividades (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  capitulo_id INT NOT NULL,
+  tipo ENUM('Curso','Taller','Evento','Conferencia') NOT NULL,
+  titulo VARCHAR(200) NOT NULL,
+  descripcion TEXT,
+  lugar VARCHAR(200),
+  cupo INT,
+  cuenta_credito TINYINT(1) DEFAULT 0,
+  fecha_inicio DATETIME NOT NULL,
+  fecha_fin DATETIME NOT NULL,
+  estado ENUM('Borrador','Publicado','Cancelado','Finalizado') DEFAULT 'Borrador',
+  creado_por INT NOT NULL,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
+  FOREIGN KEY (creado_por) REFERENCES usuarios(id)
+);
+
+-- RESPONSABLES DE ACTIVIDADES (internos o externos)
+CREATE TABLE actividades_responsables (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actividad_id INT NOT NULL,
+  nombre VARCHAR(150) NOT NULL,
+  email VARCHAR(190),
+  es_externo TINYINT(1) DEFAULT 0,
+  usuario_id INT,
+  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+-- INSCRIPCIONES A ACTIVIDADES
+CREATE TABLE actividades_inscripciones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actividad_id INT NOT NULL,
+  alumno_id INT NOT NULL,
+  estado ENUM('Inscrito','Cancelado','Finalizado') DEFAULT 'Inscrito',
+  fecha_inscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (actividad_id, alumno_id),
+  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
+  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- ASISTENCIA (PARA CRÉDITOS)
+CREATE TABLE actividades_asistencia (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actividad_id INT NOT NULL,
+  alumno_id INT NOT NULL,
+  asistio TINYINT(1) DEFAULT 0,
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (actividad_id, alumno_id),
+  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
+  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- EVIDENCIAS DE ACTIVIDADES
+CREATE TABLE actividades_evidencias (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actividad_id INT NOT NULL,
+  foto VARCHAR(255) NOT NULL,
+  descripcion VARCHAR(255),
+  fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE
+);
+
+-- AVISOS
+CREATE TABLE avisos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  capitulo_id INT,
+  titulo VARCHAR(200) NOT NULL,
+  contenido TEXT NOT NULL,
+  prioridad ENUM('Baja','Normal','Alta') DEFAULT 'Normal',
+  publicado TINYINT(1) DEFAULT 0,
+  fecha_publicacion DATETIME,
+  creado_por INT NOT NULL,
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
+  FOREIGN KEY (creado_por) REFERENCES usuarios(id)
+);
+
+-- TRABAJOS DE INVESTIGACIÓN (ARTÍCULOS)
+CREATE TABLE trabajos_investigacion (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  capitulo_id INT NOT NULL,
+  titulo VARCHAR(200) NOT NULL,
+  resumen TEXT,
+  archivo VARCHAR(255),
+  fecha_publicacion DATE,
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE
+);
+
+-- AUTORES DE TRABAJOS
+CREATE TABLE trabajos_autores (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  trabajo_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  rol VARCHAR(100),
+  UNIQUE (trabajo_id, usuario_id),
+  FOREIGN KEY (trabajo_id) REFERENCES trabajos_investigacion(id) ON DELETE CASCADE,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
