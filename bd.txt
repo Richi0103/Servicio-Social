@@ -1,10 +1,31 @@
-CREATE DATABASE IF NOT EXISTS capitulos_tecnm_morelia
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_0900_ai_ci;
+-- =========================================================
+-- BASE DE DATOS: capitulos_tecnm_morelia (version mejorada FIX)
+-- MySQL 8+
+-- =========================================================
+
+DROP DATABASE IF EXISTS capitulos_tecnm_morelia;
+CREATE DATABASE capitulos_tecnm_morelia
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_0900_ai_ci;
 
 USE capitulos_tecnm_morelia;
 
--- USUARIOS
+-- =========================================================
+-- TABLAS BASE: ROLES Y USUARIOS
+-- =========================================================
+
+CREATE TABLE roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(50) NOT NULL UNIQUE,
+  descripcion VARCHAR(255),
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT INTO roles (nombre, descripcion) VALUES
+  ('Alumno', 'Usuario tipo alumno'),
+  ('Profesor', 'Usuario tipo profesor'),
+  ('Coordinadora', 'Usuario coordinador/a del sistema'),
+  ('Admin', 'Administrador del sistema');
 
 CREATE TABLE usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -13,14 +34,36 @@ CREATE TABLE usuarios (
   apellidos VARCHAR(120) NOT NULL,
   email VARCHAR(190) UNIQUE,
   telefono VARCHAR(30),
-  password VARCHAR(255) NOT NULL,
-  tipo_usuario ENUM('Alumno','Profesor','Coordinadora') NOT NULL DEFAULT 'Alumno',
+  password_hash VARCHAR(255) NOT NULL,
   foto_perfil VARCHAR(255),
   activo TINYINT(1) DEFAULT 1,
-  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
--- CAPÍTULOS
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  eliminado_en TIMESTAMP NULL DEFAULT NULL
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_usuarios_numero_control ON usuarios(numero_control);
+CREATE INDEX idx_usuarios_activo ON usuarios(activo);
+
+CREATE TABLE usuarios_roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  rol_id INT NOT NULL,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  UNIQUE (usuario_id, rol_id),
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (rol_id) REFERENCES roles(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_usuarios_roles_usuario ON usuarios_roles(usuario_id);
+CREATE INDEX idx_usuarios_roles_rol ON usuarios_roles(rol_id);
+
+-- =========================================================
+-- CAPITULOS
+-- =========================================================
+
 CREATE TABLE capitulos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   clave VARCHAR(30) UNIQUE,
@@ -29,129 +72,368 @@ CREATE TABLE capitulos (
   area VARCHAR(150),
   logo VARCHAR(255),
   activo TINYINT(1) DEFAULT 1,
-  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
--- ALUMNOS EN CAPÍTULOS
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  eliminado_en TIMESTAMP NULL DEFAULT NULL,
+
+  creado_por INT NULL,
+  actualizado_por INT NULL,
+
+  FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+  FOREIGN KEY (actualizado_por) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_capitulos_activo ON capitulos(activo);
+CREATE INDEX idx_capitulos_area ON capitulos(area);
+
+-- =========================================================
+-- ALUMNOS EN CAPITULOS
+-- =========================================================
+
 CREATE TABLE capitulos_alumnos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   capitulo_id INT NOT NULL,
   alumno_id INT NOT NULL,
   estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
+
   fecha_ingreso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
   UNIQUE (capitulo_id, alumno_id),
   FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
   FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB;
 
--- PROFESORES / ORGANIZADORES EN CAPÍTULOS
+CREATE INDEX idx_capitulos_alumnos_capitulo ON capitulos_alumnos(capitulo_id);
+CREATE INDEX idx_capitulos_alumnos_alumno ON capitulos_alumnos(alumno_id);
+
+-- =========================================================
+-- PROFESORES / ORGANIZADORES EN CAPITULOS
+-- =========================================================
+
 CREATE TABLE capitulos_profesores (
   id INT AUTO_INCREMENT PRIMARY KEY,
   capitulo_id INT NOT NULL,
   profesor_id INT NOT NULL,
   tipo ENUM('Encargado','Apoyo') DEFAULT 'Apoyo',
+
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
   UNIQUE (capitulo_id, profesor_id),
   FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
   FOREIGN KEY (profesor_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB;
 
--- ACTIVIDADES (cursos, talleres, eventos, conferencias)
+CREATE INDEX idx_capitulos_profesores_capitulo ON capitulos_profesores(capitulo_id);
+CREATE INDEX idx_capitulos_profesores_profesor ON capitulos_profesores(profesor_id);
+
+-- =========================================================
+-- ACTIVIDADES
+-- =========================================================
+
 CREATE TABLE actividades (
   id INT AUTO_INCREMENT PRIMARY KEY,
   capitulo_id INT NOT NULL,
   tipo ENUM('Curso','Taller','Evento','Conferencia') NOT NULL,
+
   titulo VARCHAR(200) NOT NULL,
   descripcion TEXT,
   lugar VARCHAR(200),
   cupo INT,
-  cuenta_credito TINYINT(1) DEFAULT 0,
+
+  otorga_creditos TINYINT(1) DEFAULT 0,
+  creditos INT DEFAULT 0,
+
   fecha_inicio DATETIME NOT NULL,
   fecha_fin DATETIME NOT NULL,
-  estado ENUM('Borrador','Publicado','Cancelado','Finalizado') DEFAULT 'Borrador',
-  creado_por INT NOT NULL,
-  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
-  FOREIGN KEY (creado_por) REFERENCES usuarios(id)
-);
 
--- RESPONSABLES DE ACTIVIDADES (internos o externos)
+  estado ENUM('Borrador','Publicado','Cancelado','Finalizado') DEFAULT 'Borrador',
+
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  eliminado_en TIMESTAMP NULL DEFAULT NULL,
+
+  creado_por INT NULL,
+  actualizado_por INT NULL,
+
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
+  FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+  FOREIGN KEY (actualizado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+
+  CHECK (fecha_fin >= fecha_inicio),
+  CHECK (creditos >= 0),
+  CHECK (
+    (otorga_creditos = 0 AND creditos = 0)
+    OR
+    (otorga_creditos = 1 AND creditos > 0)
+  )
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_actividades_capitulo ON actividades(capitulo_id);
+CREATE INDEX idx_actividades_fechas ON actividades(fecha_inicio, fecha_fin);
+CREATE INDEX idx_actividades_estado ON actividades(estado);
+CREATE INDEX idx_actividades_otorga_creditos ON actividades(otorga_creditos);
+
+-- =========================================================
+-- SESIONES DE UNA ACTIVIDAD
+-- =========================================================
+
+CREATE TABLE actividades_sesiones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actividad_id INT NOT NULL,
+
+  titulo VARCHAR(200),
+  descripcion VARCHAR(255),
+
+  fecha_inicio DATETIME NOT NULL,
+  fecha_fin DATETIME NOT NULL,
+
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
+  CHECK (fecha_fin >= fecha_inicio)
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_actividades_sesiones_actividad ON actividades_sesiones(actividad_id);
+CREATE INDEX idx_actividades_sesiones_fechas ON actividades_sesiones(fecha_inicio, fecha_fin);
+
+-- =========================================================
+-- RESPONSABLES DE ACTIVIDADES (INTERNOS O EXTERNOS)
+-- =========================================================
+
 CREATE TABLE actividades_responsables (
   id INT AUTO_INCREMENT PRIMARY KEY,
   actividad_id INT NOT NULL,
   nombre VARCHAR(150) NOT NULL,
   email VARCHAR(190),
+
   es_externo TINYINT(1) DEFAULT 0,
-  usuario_id INT,
+  usuario_id INT NULL,
+
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
   FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
-);
+) ENGINE=InnoDB;
 
+CREATE INDEX idx_actividades_responsables_actividad ON actividades_responsables(actividad_id);
+CREATE INDEX idx_actividades_responsables_usuario ON actividades_responsables(usuario_id);
+
+-- =========================================================
 -- INSCRIPCIONES A ACTIVIDADES
+-- =========================================================
+
 CREATE TABLE actividades_inscripciones (
   id INT AUTO_INCREMENT PRIMARY KEY,
   actividad_id INT NOT NULL,
   alumno_id INT NOT NULL,
+
   estado ENUM('Inscrito','Cancelado','Finalizado') DEFAULT 'Inscrito',
+
   fecha_inscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
   UNIQUE (actividad_id, alumno_id),
   FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
   FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB;
 
--- ASISTENCIA (PARA CRÉDITOS)
-CREATE TABLE actividades_asistencia (
+CREATE INDEX idx_actividades_inscripciones_actividad ON actividades_inscripciones(actividad_id);
+CREATE INDEX idx_actividades_inscripciones_alumno ON actividades_inscripciones(alumno_id);
+CREATE INDEX idx_actividades_inscripciones_estado ON actividades_inscripciones(estado);
+
+-- =========================================================
+-- ASISTENCIA POR SESION
+-- =========================================================
+
+CREATE TABLE actividades_asistencia_sesiones (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  actividad_id INT NOT NULL,
-  alumno_id INT NOT NULL,
-  asistio TINYINT(1) DEFAULT 0,
-  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE (actividad_id, alumno_id),
-  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
-  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
 
+  actividad_id INT NOT NULL,
+  sesion_id INT NOT NULL,
+  alumno_id INT NOT NULL,
+
+  asistio TINYINT(1) DEFAULT 0,
+  registrado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  UNIQUE (sesion_id, alumno_id),
+
+  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
+  FOREIGN KEY (sesion_id) REFERENCES actividades_sesiones(id) ON DELETE CASCADE,
+  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_asistencia_sesion_sesion ON actividades_asistencia_sesiones(sesion_id);
+CREATE INDEX idx_asistencia_sesion_alumno ON actividades_asistencia_sesiones(alumno_id);
+CREATE INDEX idx_asistencia_sesion_actividad ON actividades_asistencia_sesiones(actividad_id);
+
+-- =========================================================
 -- EVIDENCIAS DE ACTIVIDADES
+-- =========================================================
+
 CREATE TABLE actividades_evidencias (
   id INT AUTO_INCREMENT PRIMARY KEY,
   actividad_id INT NOT NULL,
-  foto VARCHAR(255) NOT NULL,
-  descripcion VARCHAR(255),
-  fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE
-);
 
+  archivo VARCHAR(255) NOT NULL,
+  descripcion VARCHAR(255),
+  subido_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  subido_por INT NULL,
+
+  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
+  FOREIGN KEY (subido_por) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_actividades_evidencias_actividad ON actividades_evidencias(actividad_id);
+
+-- =========================================================
 -- AVISOS
+-- =========================================================
+
 CREATE TABLE avisos (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  capitulo_id INT,
+  capitulo_id INT NULL,
+
   titulo VARCHAR(200) NOT NULL,
   contenido TEXT NOT NULL,
   prioridad ENUM('Baja','Normal','Alta') DEFAULT 'Normal',
-  publicado TINYINT(1) DEFAULT 0,
-  fecha_publicacion DATETIME,
-  creado_por INT NOT NULL,
-  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
-  FOREIGN KEY (creado_por) REFERENCES usuarios(id)
-);
 
--- TRABAJOS DE INVESTIGACIÓN (ARTÍCULOS)
+  publicado TINYINT(1) DEFAULT 0,
+  fecha_publicacion DATETIME NULL,
+
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  eliminado_en TIMESTAMP NULL DEFAULT NULL,
+
+  creado_por INT NULL,
+  actualizado_por INT NULL,
+
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
+  FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+  FOREIGN KEY (actualizado_por) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_avisos_capitulo ON avisos(capitulo_id);
+CREATE INDEX idx_avisos_publicado ON avisos(publicado);
+CREATE INDEX idx_avisos_fecha ON avisos(fecha_publicacion);
+CREATE INDEX idx_avisos_prioridad ON avisos(prioridad);
+
+-- =========================================================
+-- TRABAJOS DE INVESTIGACION
+-- =========================================================
+
 CREATE TABLE trabajos_investigacion (
   id INT AUTO_INCREMENT PRIMARY KEY,
+
   capitulo_id INT NOT NULL,
   titulo VARCHAR(200) NOT NULL,
   resumen TEXT,
   archivo VARCHAR(255),
   fecha_publicacion DATE,
-  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE
-);
 
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  eliminado_en TIMESTAMP NULL DEFAULT NULL,
+
+  creado_por INT NULL,
+  actualizado_por INT NULL,
+
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
+  FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+  FOREIGN KEY (actualizado_por) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_trabajos_capitulo ON trabajos_investigacion(capitulo_id);
+CREATE INDEX idx_trabajos_fecha ON trabajos_investigacion(fecha_publicacion);
+
+-- =========================================================
 -- AUTORES DE TRABAJOS
+-- =========================================================
+
 CREATE TABLE trabajos_autores (
   id INT AUTO_INCREMENT PRIMARY KEY,
   trabajo_id INT NOT NULL,
   usuario_id INT NOT NULL,
   rol VARCHAR(100),
+
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
   UNIQUE (trabajo_id, usuario_id),
   FOREIGN KEY (trabajo_id) REFERENCES trabajos_investigacion(id) ON DELETE CASCADE,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_trabajos_autores_trabajo ON trabajos_autores(trabajo_id);
+CREATE INDEX idx_trabajos_autores_usuario ON trabajos_autores(usuario_id);
+
+-- =========================================================
+-- HISTORIAL DE CREDITOS POR ALUMNO
+-- =========================================================
+
+CREATE TABLE alumnos_creditos_historial (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+
+  alumno_id INT NOT NULL,
+  actividad_id INT NOT NULL,
+
+  creditos_otorgados INT NOT NULL,
+  motivo VARCHAR(255),
+
+  otorgado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  otorgado_por INT NULL,
+
+  UNIQUE (alumno_id, actividad_id),
+
+  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
+  FOREIGN KEY (otorgado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+
+  CHECK (creditos_otorgados > 0)
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_creditos_historial_alumno ON alumnos_creditos_historial(alumno_id);
+CREATE INDEX idx_creditos_historial_actividad ON alumnos_creditos_historial(actividad_id);
+CREATE INDEX idx_creditos_historial_fecha ON alumnos_creditos_historial(otorgado_en);
+
+-- =========================================================
+-- TRIGGERS DE VALIDACION (EN LUGAR DE CHECK EN RESPONSABLES)
+-- =========================================================
+
+DELIMITER $$
+
+CREATE TRIGGER trg_responsables_validar_insert
+BEFORE INSERT ON actividades_responsables
+FOR EACH ROW
+BEGIN
+  -- si es externo, NO debe tener usuario_id
+  IF NEW.es_externo = 1 AND NEW.usuario_id IS NOT NULL THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Responsable externo no puede tener usuario_id.';
+  END IF;
+
+  -- si NO es externo, SI debe tener usuario_id
+  IF NEW.es_externo = 0 AND NEW.usuario_id IS NULL THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Responsable interno debe tener usuario_id.';
+  END IF;
+END$$
+
+CREATE TRIGGER trg_responsables_validar_update
+BEFORE UPDATE ON actividades_responsables
+FOR EACH ROW
+BEGIN
+  IF NEW.es_externo = 1 AND NEW.usuario_id IS NOT NULL THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Responsable externo no puede tener usuario_id.';
+  END IF;
+
+  IF NEW.es_externo = 0 AND NEW.usuario_id IS NULL THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Responsable interno debe tener usuario_id.';
+  END IF;
+END$$
+
+DELIMITER ;
