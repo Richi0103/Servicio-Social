@@ -10,7 +10,7 @@ if (!$email || !$password) {
 }
 
 $stmt = $pdo->prepare("
-    SELECT id, nombre, apellidos, email, password_hash, activo
+    SELECT id, nombre, apellidos, email, password_hash, activo, foto_perfil
     FROM usuarios
     WHERE email = ? AND eliminado_en IS NULL
 ");
@@ -50,6 +50,7 @@ echo json_encode([
         "nombre" => $user["nombre"],
         "apellidos" => $user["apellidos"],
         "email" => $user["email"],
-        "roles" => $roles
+        "roles" => $roles,
+        "foto_perfil" => $user["foto_perfil"],
     ]
 ]);

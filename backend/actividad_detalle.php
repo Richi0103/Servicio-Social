@@ -26,6 +26,7 @@ $stmt2 = $pdo->prepare("
 $stmt2->execute([$actividad_id]);
 $sesiones = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-echo json_encode($actividad, JSON_PRETTY_PRINT) . "\n" . "\n";
-
-echo json_encode($sesiones, JSON_PRETTY_PRINT);
+echo json_encode([
+    "actividad" => $actividad,
+    "sesiones" => $sesiones
+], JSON_PRETTY_PRINT);

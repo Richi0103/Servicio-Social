@@ -1,6 +1,5 @@
 <?php
 require "config.php";
-/* ESO ES OPCIONAL */
 $actividad_id = $_GET["actividad_id"] ?? 0;
 
 if (!$actividad_id) {
@@ -26,15 +25,20 @@ $stmt = $pdo->prepare("
       u.email,
       ai.estado,
 
-      -- asistencias del alumno (asistio=1)
-      SUM(CASE WHEN aas.asistio = 1 THEN 1 ELSE 0 END) AS asistidas
+      SUM(CASE WHEN aas.asistio = 1 THEN 1 ELSE 0 END) AS asistidas,
+
+      CASE WHEN ach.id IS NULL THEN 0 ELSE 1 END AS credito_otorgado
 
     FROM actividades_inscripciones ai
     JOIN usuarios u ON u.id = ai.alumno_id
     LEFT JOIN actividades_asistencia_sesiones aas
       ON aas.alumno_id = u.id AND aas.actividad_id = ai.actividad_id
+
+    LEFT JOIN alumnos_creditos_historial ach
+      ON ach.alumno_id = u.id AND ach.actividad_id = ai.actividad_id
+
     WHERE ai.actividad_id = ?
-    GROUP BY u.id, u.numero_control, alumno, u.email, ai.estado
+    GROUP BY u.id, u.numero_control, alumno, u.email, ai.estado, credito_otorgado
     ORDER BY alumno ASC
 ");
 $stmt->execute([$actividad_id]);
@@ -46,6 +50,7 @@ $resultado = [];
 foreach ($rows as $r) {
     $asistidas = (int)($r["asistidas"] ?? 0);
     $porcentaje = round(($asistidas / $total_sesiones) * 100, 2);
+    $creditoOtorgado = (int)($r["credito_otorgado"] ?? 0);
 
     $resultado[] = [
         "alumno_id" => (int)$r["alumno_id"],
@@ -56,7 +61,8 @@ foreach ($rows as $r) {
         "asistidas" => $asistidas,
         "total_sesiones" => $total_sesiones,
         "porcentaje" => $porcentaje,
-        "listo_para_credito" => ($porcentaje == 100)
+        "listo_para_credito" => ($porcentaje == 100),
+        "credito_otorgado" => ($creditoOtorgado === 1)
     ];
 }
 

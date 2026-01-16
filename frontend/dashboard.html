@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard - Administrador</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="userbox">
+          <div class="avatar" id="avatar"></div>
+
+          <div>
+            <h1>Panel de Administración</h1>
+            <p id="userInfo" class="small"></p>
+          </div>
+        </div>
+
+        <button id="logoutBtn" class="btn-secondary">Cerrar sesión</button>
+      </header>
+
+      <main class="card">
+        <h2>Capítulos</h2>
+
+        <label>Selecciona un capítulo</label>
+        <select id="capituloSelect">
+          <option value="">Cargando...</option>
+        </select>
+
+        <hr />
+
+        <h2>Actividades del capítulo</h2>
+        <div id="actividadesContainer" class="list"></div>
+
+        <p id="dashMsg" class="msg"></p>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

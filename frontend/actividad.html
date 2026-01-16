@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Actividad - Detalle</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div>
+          <h1 id="actTitle">Actividad</h1>
+          <p id="actSub" class="small"></p>
+          <p id="userInfo" class="small"></p>
+        </div>
+
+        <div style="display: flex; gap: 10px">
+          <button id="backBtn" class="btn-secondary">Volver</button>
+          <button id="logoutBtn" class="btn-secondary">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <main class="card">
+        <h2>Sesiones</h2>
+        <div id="sesionesContainer" class="list"></div>
+        <hr />
+
+        <h2>Inscritos y asistencia</h2>
+        <div id="inscritosContainer"></div>
+
+        <p id="actMsg" class="msg"></p>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
