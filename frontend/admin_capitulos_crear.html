@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin - Capítulos</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="userbox">
+          <div>
+            <h1>Administración de capítulos</h1>
+            <p id="userInfo" class="small"></p>
+          </div>
+        </div>
+        <button id="backBtn2" class="btn-secondary">Volver</button>
+      </header>
+
+      <main class="card">
+        <h2>Crear capítulo</h2>
+        <p class="small">Campo obligatorio*</p>
+        <form id="capituloForm" class="form-grid">
+          <div>
+            <label>Nombre*</label>
+            <input id="capNombre" type="text" required maxlength="100"/>
+          </div>
+          <div>
+            <label>Clave*</label>
+            <input id="capClave" type="text" required maxlength="50"/>
+          </div>
+          <div>
+            <label>Área*</label>
+            <input id="capArea" type="text" required maxlength="50"/>
+          </div>
+          <div class="full">
+            <label>Descripción*</label>
+            <textarea id="capDescripcion" class="txtareacap" required maxlength="500" placeholder="500 caracteres máximo."></textarea>
+          </div>
+          <div class="full form-actions">
+            <button type="submit" class="btn">Guardar capítulo</button>
+          </div>
+        </form>
+
+        <p id="adminMsg1" class="msg"></p>
+
+        <hr />
+
+        <h2>Asignar encargado</h2>
+        <form id="encargadoForm" class="form-grid">
+          <div>
+            <label>Capítulo</label>
+            <select id="encCapitulo" class="selectCap"></select>
+          </div>
+          <div>
+            <label>Profesor</label>
+            <select id="encProfesor" class="selectProf"></select>
+          </div>
+          <div class="full form-actions">
+            <button type="submit" class="btn">Asignar</button>
+          </div>
+        </form>
+
+        <hr />
+        <h2>Asignar alumnos (opcional)</h2>
+        <form id="alumnosForm" class="form-grid">
+          <div>
+            <label>Nombre</label>
+            <input id="capNombreAl" type="text" />
+          </div>
+          <div>
+            <label>Apellido</label>
+            <input id="capApellidoAl" type="text" />
+          </div>
+          <div>
+            <label>Número de Control</label>
+            <input id="capNC" type="number" maxlength="7"/>
+          </div>
+          <div>
+            <label>Telefono</label>
+            <input id="capTel" type="number" maxlength="10" />
+          </div>
+          <div>
+            <label>Email</label>
+            <input id="capEmail" type="email" />
+          </div>
+          <div>
+            <label>Contraseña Temporal</label>
+            <input id="capPassTemp" type="text" maxlength="8"/>
+          </div>
+          <div>
+            <label>Asignar Capitulo</label>
+            <select id="selectCapAl" class="selectCapAl"></select>
+          </div>
+          <div class="full form-actions">
+            <button type="submit" class="btn">Agregar</button>
+          </div>
+        </form>
+
+        <hr />
+        <h2>Crear actividad</h2>
+        <form id="actividadForm" class="form-grid">
+          <div>
+            <label>Capítulo</label>
+            <select id="actCapitulo" class="selectCap"></select>
+          </div>
+          <div>
+            <label>Tipo</label>
+            <select id="actTipo">
+              <option value="Curso">Curso</option>
+              <option value="Taller">Taller</option>
+              <option value="Evento">Evento</option>
+              <option value="Conferencia">Conferencia</option>
+            </select>
+          </div>
+          <div class="full">
+            <label>Título</label>
+            <input id="actTitulo" type="text" />
+          </div>
+          <div class="full">
+            <label>Descripción</label>
+            <textarea id="actDescripcion"></textarea>
+          </div>
+          <div>
+            <label>Lugar</label>
+            <input id="actLugar" type="text" />
+          </div>
+          <div>
+            <label>Cupo</label>
+            <input id="actCupo" type="number" min="0" />
+          </div>
+          <div>
+            <label>Otorga créditos</label>
+            <input id="actOtorgaCreditos" type="checkbox" />
+          </div>
+          <div>
+            <label>Créditos</label>
+            <input id="actCreditos" type="number" min="0" max="1" maxlength="1"/>
+          </div>
+          <div>
+            <label>Fecha inicio</label>
+            <input id="actFechaInicio" type="datetime-local" />
+          </div>
+          <div>
+            <label>Fecha fin</label>
+            <input id="actFechaFin" type="datetime-local" />
+          </div>
+          <div class="full form-actions">
+            <button type="submit" class="btn">Guardar actividad</button>
+          </div>
+        </form>
+
+        <hr />
+        <h2>Sesiones de la actividad</h2>
+        <p class="small">Mínimo 1 sesión por actividad.</p><br>
+        <form id="sesionesForm" class="form-grid">
+          <div class="full session-card">
+            <h3 class="session-title">Sesión 1</h3>
+            <div class="form-grid">
+              <div>
+                <label>Título</label>
+                <input id="sesTitulo1" type="text" />
+              </div>
+              <div>
+                <label>Descripción</label>
+                <input id="sesDescripcion1" type="text" />
+              </div>
+              <div>
+                <label>Fecha inicio</label>
+                <input id="sesFechaInicio1" type="datetime-local" />
+              </div>
+              <div>
+                <label>Fecha fin</label>
+                <input id="sesFechaFin1" type="datetime-local" />
+              </div>
+            </div>
+          </div>
+          <div class="full form-actions">
+            <button type="button" id="addSesionBtn" class="btn-secondary">Agregar sesión</button>
+            <button type="submit" class="btn">Guardar sesiones</button>
+          </div>
+        </form>
+
+        <p id="adminMsg" class="msg"></p>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

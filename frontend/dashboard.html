@@ -14,9 +14,15 @@
           <div>
             <h1>Panel de Administración</h1>
             <p id="userInfo" class="small"></p>
+            <div class="profile-actions">
+              <label for="fotoInput" class="btn-secondary btn-small">Cambiar foto</label>
+              <input id="fotoInput" type="file" accept="image/*" />
+              <span id="fotoMsg" class="small"></span>
+            </div>
           </div>
         </div>
 
+        <button id="adminBtn" class="btn-admin">Crear Capitulo</button>
         <button id="logoutBtn" class="btn-secondary">Cerrar sesión</button>
       </header>
 

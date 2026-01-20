@@ -13,9 +13,22 @@ document.addEventListener("DOMContentLoaded", () => {
     initDashboard();
   }
 
+  //ACTICIDAD
   const actTitle = document.getElementById("actTitle");
   if (actTitle) {
     initActividadPage();
+  }
+
+  // CREAR CAPITULO
+  const crearCap = document.getElementById("capituloForm");
+  if (crearCap) {
+    initCapCrear();
+  }
+
+  const sesionesForm = document.getElementById("sesionesForm");
+  const addSesionBtn = document.getElementById("addSesionBtn");
+  if (sesionesForm && addSesionBtn) {
+    initSesionesForm(sesionesForm, addSesionBtn);
   }
 });
 
@@ -79,7 +92,7 @@ async function initDashboard() {
     return;
   }
 
-  // Foto de perfil (si existe)
+  //carga foto de perfil
   const avatar = document.getElementById("avatar");
   if (avatar) {
     if (usuario.foto_perfil) {
@@ -93,9 +106,84 @@ async function initDashboard() {
   const userInfo = document.getElementById("userInfo");
   userInfo.textContent = `Sesión: ${usuario.nombre} ${usuario.apellidos} | ${(usuario.roles || []).join(", ")}`;
 
+  //subir foto de perfil
+  const fotoInput = document.getElementById("fotoInput");
+  const fotoMsg = document.getElementById("fotoMsg");
+  if (fotoInput && fotoMsg) {
+    fotoInput.addEventListener("change", () => {
+      const file = fotoInput.files && fotoInput.files[0];
+      if (!file) return;
+
+      fotoMsg.style.color = "#666";
+      fotoMsg.textContent = "";
+
+      if (!file.type.startsWith("image/")) {
+        //verifica si es imagen
+        fotoMsg.style.color = "red";
+        fotoMsg.textContent = "Selecciona un archivo de imagen.";
+        fotoInput.value = "";
+        return;
+      }
+
+      const maxBytes = 1024 * 1024; // 1 MB
+      if (file.size > maxBytes) {
+        fotoMsg.style.color = "red";
+        fotoMsg.textContent = "La imagen debe ser menor a 1 MB.";
+        fotoInput.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result;
+        fotoMsg.style.color = "#666";
+        fotoMsg.textContent = "Guardando foto...";
+
+        try {
+          const data = await actualizarFotoPerfil(usuario.id, base64); //manda id y la base64
+          if (data.error) {
+            fotoMsg.style.color = "red";
+            fotoMsg.textContent = data.error;
+            return;
+          }
+
+          const foto = data.foto_perfil || base64;
+          const avatar = document.getElementById("avatar");
+          if (avatar) {
+            avatar.style.backgroundImage = `url(${foto})`;
+          }
+
+          const updatedUser = { ...usuario, foto_perfil: foto };
+          localStorage.setItem("usuario", JSON.stringify(updatedUser));
+
+          fotoMsg.style.color = "green";
+          fotoMsg.textContent = "Foto actualizada.";
+        } catch (e) {
+          console.error(e);
+          fotoMsg.style.color = "red";
+          fotoMsg.textContent = "Error al guardar la foto.";
+        } finally {
+          fotoInput.value = "";
+        }
+      };
+
+      reader.onerror = () => {
+        fotoMsg.style.color = "red";
+        fotoMsg.textContent = "No se pudo leer la imagen.";
+        fotoInput.value = "";
+      };
+
+      reader.readAsDataURL(file); //convertir a base64
+    });
+  }
+
   //botón logout
   const logoutBtn = document.getElementById("logoutBtn");
   logoutBtn.addEventListener("click", logout);
+
+  //boton crear capitulo
+  const capBtn = document.getElementById("adminBtn");
+  capBtn.addEventListener("click", crearCapitulo);
 
   //cargar capítulos
   await cargarCapitulosEnSelect();
@@ -111,6 +199,23 @@ async function initDashboard() {
   if (capituloSelect.value) {
     await cargarActividades(capituloSelect.value);
   }
+}
+
+function crearCapitulo() {
+  window.location.href = "admin_capitulos_crear.html";
+}
+
+async function actualizarFotoPerfil(usuarioId, fotoBase64) {
+  const res = await fetch(`${API_URL}/actualizar_foto.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      usuario_id: usuarioId,
+      foto_base64: fotoBase64,
+    }),
+  });
+
+  return await res.json();
 }
 
 async function cargarCapitulosEnSelect() {
@@ -166,7 +271,7 @@ async function cargarActividades(capituloId) {
 
   try {
     const res = await fetch(
-      `${API_URL}/actividades.php?capitulo_id=${capituloId}`
+      `${API_URL}/actividades.php?capitulo_id=${capituloId}`,
     );
     const data = await res.json();
 
@@ -242,7 +347,7 @@ async function cargarDetalleActividad(actividadId) {
 
   try {
     const res = await fetch(
-      `${API_URL}/actividad_detalle.php?actividad_id=${actividadId}`
+      `${API_URL}/actividad_detalle.php?actividad_id=${actividadId}`,
     );
     const data = await res.json();
 
@@ -301,7 +406,7 @@ async function cargarInscritosConAsistencia(actividadId) {
 
   try {
     const res = await fetch(
-      `${API_URL}/inscritos_con_asistencia.php?actividad_id=${actividadId}`
+      `${API_URL}/inscritos_con_asistencia.php?actividad_id=${actividadId}`,
     );
     const data = await res.json();
     console.log(data);
@@ -341,8 +446,15 @@ async function cargarInscritosConAsistencia(actividadId) {
       if (a.credito_otorgado) {
         btnHtml = `<button class="btn-secondary" disabled>Ya otorgado</button>`;
       } else {
+        const readyAttr = a.listo_para_credito ? "1" : "0";
+        const btnClass = a.listo_para_credito ? "btn" : "btn btn-disabled";
         btnHtml = `
-            <button class="btn" ${a.listo_para_credito ? "" : "disabled"} data-otorgar="${a.alumno_id}">
+            <button
+              class="${btnClass}"
+              data-otorgar="${a.alumno_id}"
+              data-ready="${readyAttr}"
+              data-porcentaje="${a.porcentaje}"
+            >
                 Otorgar crédito
             </button>
         `;
@@ -369,6 +481,15 @@ async function cargarInscritosConAsistencia(actividadId) {
     //botones otorgar crédito
     cont.querySelectorAll("button[data-otorgar]").forEach((btn) => {
       btn.addEventListener("click", async () => {
+        const ready = btn.getAttribute("data-ready") == "1";
+        const porcentaje = btn.getAttribute("data-porcentaje");
+
+        if (!ready) {
+          msg.style.color = "red";
+          msg.textContent = `Debe cumplir 100% de asistencia (actual: ${porcentaje}%).`;
+          return;
+        }
+
         const alumnoId = btn.getAttribute("data-otorgar");
         await otorgarCredito(actividadId, alumnoId);
       });
@@ -412,4 +533,65 @@ async function otorgarCredito(actividadId, alumnoId) {
     console.error(e);
     msg.textContent = "Error otorgando crédito";
   }
+}
+
+function initSesionesForm(form, addBtn) {
+  let sessionCount = form.querySelectorAll(".session-card").length || 1;
+
+  addBtn.addEventListener("click", () => {
+    sessionCount += 1;
+
+    const card = document.createElement("div");
+    card.className = "full session-card";
+    card.innerHTML = `
+      <h3 class="session-title">Sesión ${sessionCount}</h3>
+      <div class="form-grid">
+        <div>
+          <label>Título</label>
+          <input id="sesTitulo${sessionCount}" type="text" />
+        </div>
+        <div>
+          <label>Descripción</label>
+          <input id="sesDescripcion${sessionCount}" type="text" />
+        </div>
+        <div>
+          <label>Fecha inicio</label>
+          <input id="sesFechaInicio${sessionCount}" type="datetime-local" />
+        </div>
+        <div>
+          <label>Fecha fin</label>
+          <input id="sesFechaFin${sessionCount}" type="datetime-local" />
+        </div>
+      </div>
+    `;
+
+    const actions = form.querySelector(".form-actions");
+    if (actions) {
+      form.insertBefore(card, actions);
+    } else {
+      form.appendChild(card);
+    }
+  });
+}
+
+async function initCapCrear() {
+  const usuario = getUsuario();
+  const msg1 = document.getElementById("adminMsg1");
+  const msg = document.getElementById("adminMsg");
+  const capForm = document.getElementById("capituloForm");
+
+  if (!usuario) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  if (capForm) {
+    capForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      msg1.textContent = "Capítulo creado.";
+    });
+  }
+
+  //botones
+  document.getElementById("backBtn2").addEventListener("click", goBack);
 }
