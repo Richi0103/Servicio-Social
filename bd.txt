@@ -353,44 +353,6 @@ CREATE INDEX idx_creditos_historial_alumno ON alumnos_creditos_historial(alumno_
 CREATE INDEX idx_creditos_historial_actividad ON alumnos_creditos_historial(actividad_id);
 CREATE INDEX idx_creditos_historial_fecha ON alumnos_creditos_historial(otorgado_en);
 
--- =========================================================
--- TRIGGERS DE VALIDACION (EN LUGAR DE CHECK EN RESPONSABLES)
--- =========================================================
-
-DELIMITER $$
-
-CREATE TRIGGER trg_responsables_validar_insert
-BEFORE INSERT ON actividades_responsables
-FOR EACH ROW
-BEGIN
-  -- si es externo, NO debe tener usuario_id
-  IF NEW.es_externo = 1 AND NEW.usuario_id IS NOT NULL THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'Responsable externo no puede tener usuario_id.';
-  END IF;
-
-  -- si NO es externo, SI debe tener usuario_id
-  IF NEW.es_externo = 0 AND NEW.usuario_id IS NULL THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'Responsable interno debe tener usuario_id.';
-  END IF;
-END$$
-
-CREATE TRIGGER trg_responsables_validar_update
-BEFORE UPDATE ON actividades_responsables
-FOR EACH ROW
-BEGIN
-  IF NEW.es_externo = 1 AND NEW.usuario_id IS NOT NULL THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'Responsable externo no puede tener usuario_id.';
-  END IF;
-
-  IF NEW.es_externo = 0 AND NEW.usuario_id IS NULL THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'Responsable interno debe tener usuario_id.';
-  END IF;
-END$$
-
 DELIMITER ;
 
 -- =========================================================
