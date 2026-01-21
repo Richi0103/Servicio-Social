@@ -37,6 +37,8 @@ CREATE TABLE usuarios (
   password_hash VARCHAR(255) NOT NULL,
   foto_perfil VARCHAR(255),
   activo TINYINT(1) DEFAULT 1,
+  verificado TINYINT(1) DEFAULT 0,
+  tecnologico VARCHAR(150),
 
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -71,6 +73,7 @@ CREATE TABLE capitulos (
   descripcion TEXT,
   area VARCHAR(150),
   logo VARCHAR(255),
+  color VARCHAR(30),
   activo TINYINT(1) DEFAULT 1,
 
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -322,54 +325,6 @@ CREATE INDEX idx_avisos_fecha ON avisos(fecha_publicacion);
 CREATE INDEX idx_avisos_prioridad ON avisos(prioridad);
 
 -- =========================================================
--- TRABAJOS DE INVESTIGACION
--- =========================================================
-
-CREATE TABLE trabajos_investigacion (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-
-  capitulo_id INT NOT NULL,
-  titulo VARCHAR(200) NOT NULL,
-  resumen TEXT,
-  archivo VARCHAR(255),
-  fecha_publicacion DATE,
-
-  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  eliminado_en TIMESTAMP NULL DEFAULT NULL,
-
-  creado_por INT NULL,
-  actualizado_por INT NULL,
-
-  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
-  FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
-  FOREIGN KEY (actualizado_por) REFERENCES usuarios(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
-CREATE INDEX idx_trabajos_capitulo ON trabajos_investigacion(capitulo_id);
-CREATE INDEX idx_trabajos_fecha ON trabajos_investigacion(fecha_publicacion);
-
--- =========================================================
--- AUTORES DE TRABAJOS
--- =========================================================
-
-CREATE TABLE trabajos_autores (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  trabajo_id INT NOT NULL,
-  usuario_id INT NOT NULL,
-  rol VARCHAR(100),
-
-  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-  UNIQUE (trabajo_id, usuario_id),
-  FOREIGN KEY (trabajo_id) REFERENCES trabajos_investigacion(id) ON DELETE CASCADE,
-  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE INDEX idx_trabajos_autores_trabajo ON trabajos_autores(trabajo_id);
-CREATE INDEX idx_trabajos_autores_usuario ON trabajos_autores(usuario_id);
-
--- =========================================================
 -- HISTORIAL DE CREDITOS POR ALUMNO
 -- =========================================================
 
@@ -437,3 +392,60 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- =========================================================
+-- DATOS DE PRUEBA
+-- =========================================================
+
+INSERT INTO usuarios (
+  id, numero_control, nombre, apellidos, email, telefono,
+  password_hash, foto_perfil, activo, verificado, tecnologico
+) VALUES
+  (1, 'A0001', 'Juan', 'Perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (2, 'A0002', 'Maria', 'Lopez', 'maria.lopez@tec.com', '4430000002', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (3, 'A0003', 'Luis', 'Garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (4, NULL, 'Ana', 'Ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (5, NULL, 'Carlos', 'Santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (6, NULL, 'Admin', 'Sistema', 'admin@tec.com', '4430000006', '1234', NULL, 1, 1, 'Instituto Tecnologico de Morelia');
+
+INSERT INTO usuarios_roles (usuario_id, rol_id) VALUES
+  (1, 1),
+  (2, 1),
+  (3, 1),
+  (4, 2),
+  (5, 2),
+  (6, 4);
+
+INSERT INTO capitulos (
+  id, clave, nombre, descripcion, area, logo, color, activo, creado_por, actualizado_por
+) VALUES
+  (1, 'CAP-MOR', 'Capitulo Morelia', 'Capitulo de tecnologia en Morelia', 'Software', NULL, '#FF6B6B', 1, 6, 6),
+  (2, 'CAP-URU', 'Capitulo Uruapan', 'Capitulo de innovacion en Uruapan', 'Innovacion', NULL, '#4ECDC4', 1, 6, 6),
+  (3, 'CAP-LAZ', 'Capitulo Lazaro', 'Capitulo de redes en Lazaro', 'Redes', NULL, '#FFD166', 1, 6, 6);
+
+INSERT INTO capitulos_profesores (capitulo_id, profesor_id, tipo) VALUES
+  (1, 4, 'Encargado'),
+  (2, 5, 'Encargado'),
+  (3, 4, 'Encargado');
+
+INSERT INTO actividades (
+  id, capitulo_id, tipo, titulo, descripcion, lugar, cupo,
+  otorga_creditos, creditos, fecha_inicio, fecha_fin, estado,
+  creado_por, actualizado_por
+) VALUES
+  (1, 1, 'Taller', 'Taller de Git', 'Version control basico', 'Aula 1', 30, 0, 0,
+   '2024-09-10 10:00:00', '2024-09-10 13:00:00', 'Publicado', 6, 6),
+  (2, 2, 'Conferencia', 'Conferencia IA', 'Introduccion a IA', 'Auditorio', 120, 0, 0,
+   '2024-09-12 09:00:00', '2024-09-12 11:00:00', 'Publicado', 6, 6),
+  (3, 3, 'Curso', 'Curso de Redes', 'Fundamentos de redes', 'Lab Redes', 25, 1, 10,
+   '2024-09-15 16:00:00', '2024-09-20 18:00:00', 'Publicado', 6, 6);
+
+INSERT INTO actividades_sesiones (
+  actividad_id, titulo, descripcion, fecha_inicio, fecha_fin
+) VALUES
+  (1, 'Sesion 1', 'Introduccion', '2024-09-10 10:00:00', '2024-09-10 11:30:00'),
+  (1, 'Sesion 2', 'Practica', '2024-09-10 11:30:00', '2024-09-10 13:00:00'),
+  (2, 'Sesion 1', 'Charla principal', '2024-09-12 09:00:00', '2024-09-12 10:00:00'),
+  (2, 'Sesion 2', 'Preguntas', '2024-09-12 10:00:00', '2024-09-12 11:00:00'),
+  (3, 'Sesion 1', 'Conceptos basicos', '2024-09-15 16:00:00', '2024-09-15 18:00:00'),
+  (3, 'Sesion 2', 'Practicas', '2024-09-17 16:00:00', '2024-09-17 18:00:00');
