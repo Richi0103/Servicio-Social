@@ -23,6 +23,8 @@ $stmt = $pdo->prepare("
       u.numero_control,
       CONCAT(u.nombre, ' ', u.apellidos) AS alumno,
       u.email,
+      u.verificado,
+      u.tecnologico,
       ai.estado,
 
       SUM(CASE WHEN aas.asistio = 1 THEN 1 ELSE 0 END) AS asistidas,
@@ -38,7 +40,7 @@ $stmt = $pdo->prepare("
       ON ach.alumno_id = u.id AND ach.actividad_id = ai.actividad_id
 
     WHERE ai.actividad_id = ?
-    GROUP BY u.id, u.numero_control, alumno, u.email, ai.estado, credito_otorgado
+    GROUP BY u.id, u.numero_control, alumno, u.email, u.verificado, u.tecnologico, ai.estado, credito_otorgado
     ORDER BY alumno ASC
 ");
 $stmt->execute([$actividad_id]);
@@ -57,6 +59,8 @@ foreach ($rows as $r) {
         "numero_control" => $r["numero_control"],
         "alumno" => $r["alumno"],
         "email" => $r["email"],
+        "verificado" => (int)$r["verificado"],
+        "tecnologico" => $r["tecnologico"],
         "estado" => $r["estado"],
         "asistidas" => $asistidas,
         "total_sesiones" => $total_sesiones,

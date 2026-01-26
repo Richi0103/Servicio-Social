@@ -14,6 +14,8 @@ $stmt = $pdo->prepare("
       u.numero_control,
       CONCAT(u.nombre, ' ', u.apellidos) AS alumno,
       u.email,
+      u.verificado,
+      u.tecnologico,
       ai.estado,
       ai.fecha_inscripcion
     FROM actividades_inscripciones ai

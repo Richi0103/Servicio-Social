@@ -16,7 +16,8 @@ $stmt = $pdo->prepare("
       ach.otorgado_en,
       a.titulo AS actividad,
       a.tipo,
-      c.nombre AS capitulo
+      c.nombre AS capitulo,
+      c.color AS capitulo_color
     FROM alumnos_creditos_historial ach
     JOIN actividades a ON a.id = ach.actividad_id
     JOIN capitulos c ON c.id = a.capitulo_id

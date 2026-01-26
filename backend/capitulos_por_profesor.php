@@ -9,7 +9,7 @@ if (!$profesor_id) {
 }
 
 $stmt = $pdo->prepare("
-  SELECT c.id, c.clave, c.nombre, c.descripcion, c.area, c.logo
+  SELECT c.id, c.clave, c.nombre, c.descripcion, c.area, c.logo, c.color
   FROM capitulos_profesores cp
   JOIN capitulos c ON c.id = cp.capitulo_id
   WHERE cp.profesor_id = ?

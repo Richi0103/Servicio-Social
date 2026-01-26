@@ -35,7 +35,7 @@ CREATE TABLE usuarios (
   email VARCHAR(190) UNIQUE,
   telefono VARCHAR(30),
   password_hash VARCHAR(255) NOT NULL,
-  foto_perfil VARCHAR(255),
+  foto_perfil MEDIUMTEXT,
   activo TINYINT(1) DEFAULT 1,
   verificado TINYINT(1) DEFAULT 0,
   tecnologico VARCHAR(150),

@@ -577,13 +577,18 @@ function initSesionesForm(form, addBtn) {
 async function initCapCrear() {
   const usuario = getUsuario();
   const msg1 = document.getElementById("adminMsg1");
+  const msg2 = document.getElementById("adminMsg2");
   const msg = document.getElementById("adminMsg");
   const capForm = document.getElementById("capituloForm");
+  const encargadoForm = document.getElementById("encargadoForm");
 
   if (!usuario) {
     window.location.href = "index.html";
     return;
   }
+
+  await cargarCapitulosSelectAdmin("encCapitulo");
+  await cargarProfesoresSelect("encProfesor");
 
   if (capForm) {
     capForm.addEventListener("submit", (e) => {
@@ -592,6 +597,104 @@ async function initCapCrear() {
     });
   }
 
+  if (encargadoForm) {
+    encargadoForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const encCapitulo = document.getElementById("encCapitulo").value;
+      const encProfesor = document.getElementById("encProfesor").value;
+
+      try {
+        const res = await fetch(`${API_URL}/asignar_encargado.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            capitulo_id: encCapitulo,
+            profesor_id: encProfesor,
+          }),
+        });
+
+        const data = await res.json();
+        if (data.error) {
+          msg2.textContent = data.error;
+          return;
+        }
+
+        msg2.textContent = "Profesor asignado.";
+      } catch (error) {
+        console.error(error);
+        msg2.textContent = "Error al asignar profesor.";
+      }
+    });
+  }
+
   //botones
   document.getElementById("backBtn2").addEventListener("click", goBack);
+}
+
+async function cargarCapitulosSelectAdmin(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  try {
+    const res = await fetch(`${API_URL}/capitulos.php`);
+    const data = await res.json();
+
+    select.innerHTML = "";
+
+    if (data.error) {
+      select.innerHTML = `<option value="">Error</option>`;
+      return;
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      select.innerHTML = `<option value="">Sin capítulos</option>`;
+      return;
+    }
+
+    select.innerHTML = `<option value="">-- Selecciona --</option>`;
+    data.forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre;
+      select.appendChild(opt);
+    });
+  } catch (e) {
+    console.error(e);
+    select.innerHTML = `<option value="">Error</option>`;
+  }
+}
+
+async function cargarProfesoresSelect(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  try {
+    const res = await fetch(`${API_URL}/profesores.php`);
+    const data = await res.json();
+
+    select.innerHTML = "";
+
+    if (data.error) {
+      select.innerHTML = `<option value="">Error</option>`;
+      return;
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      select.innerHTML = `<option value="">Sin profesores</option>`;
+      return;
+    }
+
+    select.innerHTML = `<option value="">-- Selecciona --</option>`;
+    data.forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = `${p.nombre} ${p.apellidos}`;
+      select.appendChild(opt);
+    });
+  } catch (e) {
+    console.error(e);
+    select.innerHTML = `<option value="">Error</option>`;
+  }
 }
