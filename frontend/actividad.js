@@ -63,8 +63,8 @@ async function cargarDetalleActividad(actividadId) {
       div.className = "item";
       div.innerHTML = `
         <div>
-          <h3>${s.descripcion || "Sesión"}</h3>
-          <p>${s.titulo || ""}</p>
+          <h3>${s.titulo || ""}</h3>
+          <p>${s.descripcion || "Sesión"}</p>
           <p class="small">${formatearFecha(s.fecha_inicio)} → ${formatearFecha(s.fecha_fin)}</p>
         </div>
       `;

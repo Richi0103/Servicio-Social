@@ -23,23 +23,34 @@
         <form id="capituloForm" class="form-grid">
           <div>
             <label>Nombre*</label>
-            <input id="capNombre" type="text" required maxlength="100"/>
+            <input id="capNombre" type="text" required maxlength="100" />
           </div>
           <div>
             <label>Clave*</label>
-            <input id="capClave" type="text" required maxlength="50"/>
+            <input id="capClave" type="text" required maxlength="50" />
           </div>
           <div>
             <label>Área*</label>
-            <input id="capArea" type="text" required maxlength="50"/>
+            <input id="capArea" type="text" required maxlength="50" />
           </div>
           <div>
             <label>Color</label>
-            <input id="capColor" type="color" class="colorInput" value="#FFFFFFFF" />
+            <input
+              id="capColor"
+              type="color"
+              class="colorInput"
+              value="#FFFFFFFF"
+            />
           </div>
           <div class="full">
             <label>Descripción*</label>
-            <textarea id="capDescripcion" class="txtareacap" required maxlength="500" placeholder="500 caracteres máximo."></textarea>
+            <textarea
+              id="capDescripcion"
+              class="txtareacap"
+              required
+              maxlength="500"
+              placeholder="500 caracteres máximo."
+            ></textarea>
           </div>
           <div class="full form-actions">
             <button type="submit" class="btn">Guardar capítulo</button>
@@ -72,6 +83,7 @@
         <p id="adminMsg2" class="msg"></p>
 
         <hr />
+
         <h2>Asignar alumnos</h2>
         <form id="alumnosForm" class="form-grid">
           <div>
@@ -84,11 +96,23 @@
           </div>
           <div>
             <label>Número de Control</label>
-            <input id="capNC" type="tel" maxlength="8" inputmode="numeric" pattern="\d{8}" />
+            <input
+              id="capNC"
+              type="tel"
+              maxlength="8"
+              inputmode="numeric"
+              pattern="\d{8}"
+            />
           </div>
           <div>
             <label>Telefono</label>
-            <input id="capTel" type="tel" maxlength="10" inputmode="numeric" pattern="\d{10}" />
+            <input
+              id="capTel"
+              type="number"
+              maxlength="10"
+              inputmode="numeric"
+              pattern="\d{10}"
+            />
           </div>
           <div>
             <label>Email</label>
@@ -96,7 +120,7 @@
           </div>
           <div>
             <label>Contraseña Temporal</label>
-            <input id="capPassTemp" type="text" maxlength="8"/>
+            <input id="capPassTemp" type="text" maxlength="8" />
           </div>
           <div>
             <label>Asignar Capitulo</label>
@@ -112,6 +136,7 @@
         <p id="adminMsgAl" class="msg"></p>
 
         <hr />
+
         <h2>Asignar alumno existente</h2>
         <form id="asignarAlumnoForm" class="form-grid">
           <div>
@@ -134,15 +159,18 @@
         <p id="adminMsgAl2" class="msg"></p>
 
         <hr />
+
         <h2>Crear actividad</h2>
         <form id="actividadForm" class="form-grid">
           <div>
             <label>Capítulo</label>
-            <select id="actCapitulo" class="selectCap"></select>
+            <select id="actCapitulo" class="selectCap" required>
+              <option value="">-- Selecciona --</option>
+            </select>
           </div>
           <div>
             <label>Tipo</label>
-            <select id="actTipo">
+            <select id="actTipo" required>
               <option value="">-- Selecciona --</option>
               <option value="Curso">Curso</option>
               <option value="Taller">Taller</option>
@@ -152,71 +180,87 @@
           </div>
           <div class="full">
             <label>Título</label>
-            <input id="actTitulo" type="text" />
+            <input id="actTitulo" type="text" required />
           </div>
           <div class="full">
-            <label>Descripción</label>
-            <textarea id="actDescripcion"></textarea>
+            <label>Descripción*</label>
+            <textarea
+              id="actividadDescripcion"
+              class="txtareacap"
+              required
+              maxlength="500"
+              placeholder="500 caracteres máximo."
+            ></textarea>
           </div>
           <div>
             <label>Lugar</label>
-            <input id="actLugar" type="text" />
+            <input id="actLugar" type="text" required />
           </div>
           <div>
             <label>Cupo</label>
-            <input id="actCupo" type="number" min="0" />
+            <input id="actCupo" type="number" min="1" max="30" required />
           </div>
           <div>
-            <label>Otorga créditos</label>
+            <label>Otorga crédito</label>
             <input id="actOtorgaCreditos" type="checkbox" />
           </div>
           <div>
             <label>Créditos</label>
-            <input id="actCreditos" type="number" min="0" max="1" maxlength="1"/>
+            <input
+              id="actCreditos"
+              type="number"
+              min="0"
+              max="1"
+              maxlength="1"
+            />
           </div>
           <div>
             <label>Fecha inicio</label>
-            <input id="actFechaInicio" type="datetime-local" />
+            <input id="actFechaInicio" type="datetime-local" required />
           </div>
           <div>
             <label>Fecha fin</label>
-            <input id="actFechaFin" type="datetime-local" />
+            <input id="actFechaFin" type="datetime-local" required />
           </div>
-        </form>
 
-        <hr />
-        <h2>Sesiones de la actividad</h2>
-        <p class="small">Mínimo 1 sesión por actividad.</p><br>
-        <form id="sesionesForm" class="form-grid">
+          <hr class="hrActSes"/> <br>
+
+          <h2>Sesiones de la actividad</h2><br>
+          <p class="small">Mínimo 1 sesión por actividad.</p>
+          <br />
           <div class="full session-card">
             <h3 class="session-title">Sesión 1</h3>
             <div class="form-grid">
               <div>
                 <label>Título</label>
-                <input id="sesTitulo1" type="text" />
+                <input id="sesTitulo" type="text" required />
               </div>
               <div>
                 <label>Descripción</label>
-                <input id="sesDescripcion1" type="text" />
+                <input id="sesDescripcion" type="text" required />
               </div>
               <div>
                 <label>Fecha inicio</label>
-                <input id="sesFechaInicio1" type="datetime-local" />
+                <input id="sesFechaInicio" type="datetime-local" required />
               </div>
               <div>
                 <label>Fecha fin</label>
-                <input id="sesFechaFin1" type="datetime-local" />
+                <input id="sesFechaFin" type="datetime-local" required />
               </div>
             </div>
           </div>
           <div class="full form-actions">
-            <button type="button" id="addSesionBtn" class="btn-secondary">Agregar sesión</button>
-            <button type="submit" class="btn">Guardar sesiones</button>
+            <button type="button" id="addSesionBtn" class="btn-secondary">
+              Agregar sesión
+            </button>
+            <button type="button" id="dltSesionBtn" class="btn_detele">
+              Borrar última sesión
+            </button>
+            <div class="full form-actions">
+              <button type="submit" class="btn">Guardar actividad</button>
+            </div>
           </div>
         </form>
-        <br>          <div class="full form-actions">
-            <button type="submit" class="btn">Guardar actividad</button>
-          </div>
 
         <p id="adminMsg" class="msg"></p>
       </main>
