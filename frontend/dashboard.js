@@ -130,7 +130,7 @@ async function actualizarFotoPerfil(usuarioId, fotoBase64) {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      usuario_id: usuarioId,
+      miembro_id: usuarioId,
       foto_base64: fotoBase64,
     }),
   });
@@ -144,12 +144,7 @@ async function cargarCapitulosEnSelect() {
   msg.textContent = "";
 
   const usuario = getUsuario();
-  const roles = usuario?.roles || [];
-  const esAdmin = roles.includes("Admin");
-
-  const url = esAdmin
-    ? `${API_URL}/capitulos.php`
-    : `${API_URL}/capitulos_por_profesor.php?profesor_id=${usuario.id}`;
+  const url = `${API_URL}/capitulos_por_profesor.php?miembro_id=${usuario.id}`;
 
   try {
     const res = await fetch(url);

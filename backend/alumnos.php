@@ -2,15 +2,16 @@
 require "config.php";
 
 $stmt = $pdo->prepare("
-  SELECT u.id, u.numero_control, u.nombre, u.apellidos, u.email
-  FROM usuarios u
-  JOIN usuarios_roles ur ON ur.usuario_id = u.id
-  JOIN roles r ON r.id = ur.rol_id
-  WHERE r.nombre = 'Alumno'
-    AND u.activo = 1
-    AND u.eliminado_en IS NULL
-  ORDER BY u.nombre ASC, u.apellidos ASC
+  SELECT m.id, m.numero_control, m.nombre, m.apellidos, m.email
+  FROM miembros m
+  JOIN miembros_roles mr ON mr.miembro_id = m.id
+  JOIN roles r ON r.id = mr.rol_id
+  WHERE r.nombre = 'Miembro'
+    AND m.activo = 1
+    AND m.eliminado_en IS NULL
+  ORDER BY m.nombre ASC, m.apellidos ASC
 ");
+/* Compatibilidad con frontend actual: se mantiene endpoint alumnos.php */
 $stmt->execute();
 
 echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));

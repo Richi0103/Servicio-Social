@@ -1,10 +1,10 @@
 <?php
 require "config.php";
 
-$alumno_id = $_GET["alumno_id"] ?? 0;
+$miembro_id = $_GET["miembro_id"] ?? ($_GET["alumno_id"] ?? 0);
 
-if (!$alumno_id) {
-    echo json_encode(["error" => "Falta alumno_id"]);
+if (!$miembro_id) {
+    echo json_encode(["error" => "Falta miembro_id"]);
     exit;
 }
 
@@ -18,12 +18,12 @@ $stmt = $pdo->prepare("
       a.tipo,
       c.nombre AS capitulo,
       c.color AS capitulo_color
-    FROM alumnos_creditos_historial ach
+    FROM miembros_creditos_historial ach
     JOIN actividades a ON a.id = ach.actividad_id
     JOIN capitulos c ON c.id = a.capitulo_id
-    WHERE ach.alumno_id = ?
+    WHERE ach.miembro_id = ?
     ORDER BY ach.otorgado_en DESC
 ");
-$stmt->execute([$alumno_id]);
+$stmt->execute([$miembro_id]);
 
 echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));

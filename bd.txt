@@ -11,7 +11,7 @@ CREATE DATABASE capitulos_tecnm_morelia
 USE capitulos_tecnm_morelia;
 
 -- =========================================================
--- TABLAS BASE: ROLES Y USUARIOS
+-- TABLAS BASE: ROLES Y MIEMBROS
 -- =========================================================
 
 CREATE TABLE roles (
@@ -22,16 +22,17 @@ CREATE TABLE roles (
 ) ENGINE=InnoDB;
 
 INSERT INTO roles (nombre, descripcion) VALUES
-  ('Alumno', 'Usuario tipo alumno'),
-  ('Profesor', 'Usuario tipo profesor'),
-  ('Coordinadora', 'Usuario coordinador/a del sistema'),
-  ('Admin', 'Administrador del sistema');
+  ('Miembro', 'Miembro base del capitulo'),
+  ('Asesor', 'Miembro asesor del capitulo'),
+  ('Encargado', 'Miembro encargado con permisos de gestion del capitulo'),
+  ('Admin', 'Administrador del capitulo');
 
-CREATE TABLE usuarios (
+CREATE TABLE miembros (
   id INT AUTO_INCREMENT PRIMARY KEY,
   numero_control VARCHAR(30),
   nombre VARCHAR(80) NOT NULL,
   apellidos VARCHAR(120) NOT NULL,
+  username VARCHAR(80) NOT NULL UNIQUE,
   email VARCHAR(190) UNIQUE,
   telefono VARCHAR(30),
   password_hash VARCHAR(255) NOT NULL,
@@ -45,22 +46,22 @@ CREATE TABLE usuarios (
   eliminado_en TIMESTAMP NULL DEFAULT NULL
 ) ENGINE=InnoDB;
 
-CREATE INDEX idx_usuarios_numero_control ON usuarios(numero_control);
-CREATE INDEX idx_usuarios_activo ON usuarios(activo);
+CREATE INDEX idx_miembros_numero_control ON miembros(numero_control);
+CREATE INDEX idx_miembros_activo ON miembros(activo);
 
-CREATE TABLE usuarios_roles (
+CREATE TABLE miembros_roles (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  usuario_id INT NOT NULL,
+  miembro_id INT NOT NULL,
   rol_id INT NOT NULL,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-  UNIQUE (usuario_id, rol_id),
-  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  UNIQUE (miembro_id, rol_id),
+  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE,
   FOREIGN KEY (rol_id) REFERENCES roles(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
-CREATE INDEX idx_usuarios_roles_usuario ON usuarios_roles(usuario_id);
-CREATE INDEX idx_usuarios_roles_rol ON usuarios_roles(rol_id);
+CREATE INDEX idx_miembros_roles_miembro ON miembros_roles(miembro_id);
+CREATE INDEX idx_miembros_roles_rol ON miembros_roles(rol_id);
 
 -- =========================================================
 -- CAPITULOS
@@ -83,53 +84,53 @@ CREATE TABLE capitulos (
   creado_por INT NULL,
   actualizado_por INT NULL,
 
-  FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
-  FOREIGN KEY (actualizado_por) REFERENCES usuarios(id) ON DELETE SET NULL
+  FOREIGN KEY (creado_por) REFERENCES miembros(id) ON DELETE SET NULL,
+  FOREIGN KEY (actualizado_por) REFERENCES miembros(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_capitulos_activo ON capitulos(activo);
 CREATE INDEX idx_capitulos_area ON capitulos(area);
 
 -- =========================================================
--- ALUMNOS EN CAPITULOS
+-- MIEMBROS EN CAPITULOS
 -- =========================================================
 
-CREATE TABLE capitulos_alumnos (
+CREATE TABLE capitulos_miembros (
   id INT AUTO_INCREMENT PRIMARY KEY,
   capitulo_id INT NOT NULL,
-  alumno_id INT NOT NULL,
+  miembro_id INT NOT NULL,
   estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
 
   fecha_ingreso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-  UNIQUE (capitulo_id, alumno_id),
+  UNIQUE (capitulo_id, miembro_id),
   FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
-  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE INDEX idx_capitulos_alumnos_capitulo ON capitulos_alumnos(capitulo_id);
-CREATE INDEX idx_capitulos_alumnos_alumno ON capitulos_alumnos(alumno_id);
+CREATE INDEX idx_capitulos_miembros_capitulo ON capitulos_miembros(capitulo_id);
+CREATE INDEX idx_capitulos_miembros_miembro ON capitulos_miembros(miembro_id);
 
 -- =========================================================
--- PROFESORES / ORGANIZADORES EN CAPITULOS
+-- ASESORES / RESPONSABLES EN CAPITULOS
 -- =========================================================
 
-CREATE TABLE capitulos_profesores (
+CREATE TABLE capitulos_asesores (
   id INT AUTO_INCREMENT PRIMARY KEY,
   capitulo_id INT NOT NULL,
-  profesor_id INT NOT NULL,
-  tipo ENUM('Encargado','Apoyo') DEFAULT 'Apoyo',
+  asesor_id INT NOT NULL,
+  tipo ENUM('Asesor','Encargado') DEFAULT 'Asesor',
 
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-  UNIQUE (capitulo_id, profesor_id),
+  UNIQUE (capitulo_id, asesor_id),
   FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
-  FOREIGN KEY (profesor_id) REFERENCES usuarios(id) ON DELETE CASCADE
+  FOREIGN KEY (asesor_id) REFERENCES miembros(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE INDEX idx_capitulos_profesores_capitulo ON capitulos_profesores(capitulo_id);
-CREATE INDEX idx_capitulos_profesores_profesor ON capitulos_profesores(profesor_id);
+CREATE INDEX idx_capitulos_asesores_capitulo ON capitulos_asesores(capitulo_id);
+CREATE INDEX idx_capitulos_asesores_asesor ON capitulos_asesores(asesor_id);
 
 -- =========================================================
 -- ACTIVIDADES
@@ -161,8 +162,8 @@ CREATE TABLE actividades (
   actualizado_por INT NULL,
 
   FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
-  FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
-  FOREIGN KEY (actualizado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+  FOREIGN KEY (creado_por) REFERENCES miembros(id) ON DELETE SET NULL,
+  FOREIGN KEY (actualizado_por) REFERENCES miembros(id) ON DELETE SET NULL,
 
   CHECK (fecha_fin >= fecha_inicio),
   CHECK (creditos >= 0),
@@ -213,16 +214,16 @@ CREATE TABLE actividades_responsables (
   email VARCHAR(190),
 
   es_externo TINYINT(1) DEFAULT 0,
-  usuario_id INT NULL,
+  miembro_id INT NULL,
 
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
-  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_actividades_responsables_actividad ON actividades_responsables(actividad_id);
-CREATE INDEX idx_actividades_responsables_usuario ON actividades_responsables(usuario_id);
+CREATE INDEX idx_actividades_responsables_miembro ON actividades_responsables(miembro_id);
 
 -- =========================================================
 -- INSCRIPCIONES A ACTIVIDADES
@@ -231,20 +232,20 @@ CREATE INDEX idx_actividades_responsables_usuario ON actividades_responsables(us
 CREATE TABLE actividades_inscripciones (
   id INT AUTO_INCREMENT PRIMARY KEY,
   actividad_id INT NOT NULL,
-  alumno_id INT NOT NULL,
+  miembro_id INT NOT NULL,
 
   estado ENUM('Inscrito','Cancelado','Finalizado') DEFAULT 'Inscrito',
 
   fecha_inscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-  UNIQUE (actividad_id, alumno_id),
+  UNIQUE (actividad_id, miembro_id),
   FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
-  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_actividades_inscripciones_actividad ON actividades_inscripciones(actividad_id);
-CREATE INDEX idx_actividades_inscripciones_alumno ON actividades_inscripciones(alumno_id);
+CREATE INDEX idx_actividades_inscripciones_miembro ON actividades_inscripciones(miembro_id);
 CREATE INDEX idx_actividades_inscripciones_estado ON actividades_inscripciones(estado);
 
 -- =========================================================
@@ -256,20 +257,20 @@ CREATE TABLE actividades_asistencia_sesiones (
 
   actividad_id INT NOT NULL,
   sesion_id INT NOT NULL,
-  alumno_id INT NOT NULL,
+  miembro_id INT NOT NULL,
 
   asistio TINYINT(1) DEFAULT 0,
   registrado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-  UNIQUE (sesion_id, alumno_id),
+  UNIQUE (sesion_id, miembro_id),
 
   FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
   FOREIGN KEY (sesion_id) REFERENCES actividades_sesiones(id) ON DELETE CASCADE,
-  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_asistencia_sesion_sesion ON actividades_asistencia_sesiones(sesion_id);
-CREATE INDEX idx_asistencia_sesion_alumno ON actividades_asistencia_sesiones(alumno_id);
+CREATE INDEX idx_asistencia_sesion_miembro ON actividades_asistencia_sesiones(miembro_id);
 CREATE INDEX idx_asistencia_sesion_actividad ON actividades_asistencia_sesiones(actividad_id);
 
 -- =========================================================
@@ -287,7 +288,7 @@ CREATE TABLE actividades_evidencias (
   subido_por INT NULL,
 
   FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
-  FOREIGN KEY (subido_por) REFERENCES usuarios(id) ON DELETE SET NULL
+  FOREIGN KEY (subido_por) REFERENCES miembros(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_actividades_evidencias_actividad ON actividades_evidencias(actividad_id);
@@ -315,8 +316,8 @@ CREATE TABLE avisos (
   actualizado_por INT NULL,
 
   FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
-  FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
-  FOREIGN KEY (actualizado_por) REFERENCES usuarios(id) ON DELETE SET NULL
+  FOREIGN KEY (creado_por) REFERENCES miembros(id) ON DELETE SET NULL,
+  FOREIGN KEY (actualizado_por) REFERENCES miembros(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_avisos_capitulo ON avisos(capitulo_id);
@@ -325,13 +326,13 @@ CREATE INDEX idx_avisos_fecha ON avisos(fecha_publicacion);
 CREATE INDEX idx_avisos_prioridad ON avisos(prioridad);
 
 -- =========================================================
--- HISTORIAL DE CREDITOS POR ALUMNO
+-- HISTORIAL DE CREDITOS POR MIEMBRO
 -- =========================================================
 
-CREATE TABLE alumnos_creditos_historial (
+CREATE TABLE miembros_creditos_historial (
   id INT AUTO_INCREMENT PRIMARY KEY,
 
-  alumno_id INT NOT NULL,
+  miembro_id INT NOT NULL,
   actividad_id INT NOT NULL,
 
   creditos_otorgados INT NOT NULL,
@@ -340,18 +341,18 @@ CREATE TABLE alumnos_creditos_historial (
   otorgado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   otorgado_por INT NULL,
 
-  UNIQUE (alumno_id, actividad_id),
+  UNIQUE (miembro_id, actividad_id),
 
-  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE,
   FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
-  FOREIGN KEY (otorgado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+  FOREIGN KEY (otorgado_por) REFERENCES miembros(id) ON DELETE SET NULL,
 
   CHECK (creditos_otorgados > 0)
 ) ENGINE=InnoDB;
 
-CREATE INDEX idx_creditos_historial_alumno ON alumnos_creditos_historial(alumno_id);
-CREATE INDEX idx_creditos_historial_actividad ON alumnos_creditos_historial(actividad_id);
-CREATE INDEX idx_creditos_historial_fecha ON alumnos_creditos_historial(otorgado_en);
+CREATE INDEX idx_creditos_historial_miembro ON miembros_creditos_historial(miembro_id);
+CREATE INDEX idx_creditos_historial_actividad ON miembros_creditos_historial(actividad_id);
+CREATE INDEX idx_creditos_historial_fecha ON miembros_creditos_historial(otorgado_en);
 
 DELIMITER ;
 
@@ -359,23 +360,25 @@ DELIMITER ;
 -- DATOS DE PRUEBA
 -- =========================================================
 
-INSERT INTO usuarios (
-  id, numero_control, nombre, apellidos, email, telefono,
+INSERT INTO miembros (
+  id, numero_control, nombre, apellidos, username, email, telefono,
   password_hash, foto_perfil, activo, verificado, tecnologico
 ) VALUES
-  (1, 'A0001', 'Juan', 'Perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (2, 'A0002', 'Maria', 'Lopez', 'maria.lopez@tec.com', '4430000002', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (3, 'A0003', 'Luis', 'Garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (4, NULL, 'Ana', 'Ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (5, NULL, 'Carlos', 'Santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (6, NULL, 'Admin', 'Sistema', 'admin@tec.com', '4430000006', '1234', NULL, 1, 1, 'Instituto Tecnologico de Morelia');
+  (1, 'A0001', 'Juan', 'Perez', 'juan.perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (2, 'A0002', 'Maria', 'Lopez', 'maria.lopez', 'maria.lopez@tec.com', '4430000002', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (3, 'A0003', 'Luis', 'Garcia', 'luis.garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (4, NULL, 'Ana', 'Ramirez', 'ana.ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (5, NULL, 'Carlos', 'Santos', 'carlos.santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
+  (6, NULL, 'Rogelio', 'CIA', 'rogelio.cia', 'rogelio@tec.com', '4430000006', '1234', NULL, 1, 1, 'Instituto Tecnologico de Morelia');
 
-INSERT INTO usuarios_roles (usuario_id, rol_id) VALUES
+INSERT INTO miembros_roles (miembro_id, rol_id) VALUES
   (1, 1),
   (2, 1),
   (3, 1),
   (4, 2),
+  (4, 3),
   (5, 2),
+  (5, 3),
   (6, 4);
 
 INSERT INTO capitulos (
@@ -385,7 +388,7 @@ INSERT INTO capitulos (
   (2, 'CAP-URU', 'Capitulo Uruapan', 'Capitulo de innovacion en Uruapan', 'Innovacion', NULL, '#4ECDC4', 1, 6, 6),
   (3, 'CAP-LAZ', 'Capitulo Lazaro', 'Capitulo de redes en Lazaro', 'Redes', NULL, '#FFD166', 1, 6, 6);
 
-INSERT INTO capitulos_profesores (capitulo_id, profesor_id, tipo) VALUES
+INSERT INTO capitulos_asesores (capitulo_id, asesor_id, tipo) VALUES
   (1, 4, 'Encargado'),
   (2, 5, 'Encargado'),
   (3, 4, 'Encargado');

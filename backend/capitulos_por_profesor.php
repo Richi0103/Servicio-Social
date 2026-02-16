@@ -1,22 +1,22 @@
 <?php
 require "config.php";
 
-$profesor_id = $_GET["profesor_id"] ?? 0;
+$miembro_id = $_GET["miembro_id"] ?? ($_GET["profesor_id"] ?? 0);
 
-if (!$profesor_id) {
-  echo json_encode(["error" => "Falta profesor_id"]);
+if (!$miembro_id) {
+  echo json_encode(["error" => "Falta miembro_id"]);
   exit;
 }
 
 $stmt = $pdo->prepare("
-  SELECT c.id, c.clave, c.nombre, c.descripcion, c.area, c.logo, c.color
-  FROM capitulos_profesores cp
-  JOIN capitulos c ON c.id = cp.capitulo_id
-  WHERE cp.profesor_id = ?
+  SELECT DISTINCT c.id, c.clave, c.nombre, c.descripcion, c.area, c.logo, c.color
+  FROM capitulos c
+  LEFT JOIN capitulos_asesores cp ON c.id = cp.capitulo_id
+  WHERE (cp.asesor_id = ? OR c.creado_por = ? OR c.actualizado_por = ?)
     AND c.activo = 1
     AND c.eliminado_en IS NULL
   ORDER BY c.nombre ASC
 ");
-$stmt->execute([$profesor_id]);
+$stmt->execute([$miembro_id, $miembro_id, $miembro_id]);
 
 echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));

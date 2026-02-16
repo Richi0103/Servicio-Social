@@ -1,10 +1,10 @@
 <?php
 require "config.php";
 
-$usuario_id = $_POST["usuario_id"] ?? 0;
+$miembro_id = $_POST["miembro_id"] ?? ($_POST["usuario_id"] ?? 0);
 $foto_base64 = $_POST["foto_base64"] ?? "";
 
-if (!$usuario_id || !$foto_base64) {
+if (!$miembro_id || !$foto_base64) {
     echo json_encode(["error" => "Faltan datos"]);
     exit;
 }
@@ -20,8 +20,8 @@ if (strlen($foto_base64) > (2 * 1024 * 1024)) {
 }
 
 try {
-    $stmt = $pdo->prepare("UPDATE usuarios SET foto_perfil = ? WHERE id = ?");
-    $stmt->execute([$foto_base64, $usuario_id]);
+    $stmt = $pdo->prepare("UPDATE miembros SET foto_perfil = ? WHERE id = ?");
+    $stmt->execute([$foto_base64, $miembro_id]);
 
     echo json_encode([
         "success" => true,

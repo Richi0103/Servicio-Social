@@ -10,16 +10,17 @@ if (!$actividad_id) {
 
 $stmt = $pdo->prepare("
     SELECT 
-      ai.alumno_id,
-      u.numero_control,
-      CONCAT(u.nombre, ' ', u.apellidos) AS alumno,
-      u.email,
-      u.verificado,
-      u.tecnologico,
+      ai.miembro_id,
+      ai.miembro_id AS alumno_id,
+      m.numero_control,
+      CONCAT(m.nombre, ' ', m.apellidos) AS alumno,
+      m.email,
+      m.verificado,
+      m.tecnologico,
       ai.estado,
       ai.fecha_inscripcion
     FROM actividades_inscripciones ai
-    JOIN usuarios u ON u.id = ai.alumno_id
+    JOIN miembros m ON m.id = ai.miembro_id
     WHERE ai.actividad_id = ?
     ORDER BY alumno ASC
 ");

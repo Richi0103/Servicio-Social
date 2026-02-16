@@ -3,10 +3,11 @@ require "config.php";
 
 $actividad_id = $_POST["actividad_id"] ?? 0;
 $sesion_id = $_POST["sesion_id"] ?? 0;
-$alumno_id = $_POST["alumno_id"] ?? 0;
+$miembro_id = $_POST["miembro_id"] ?? ($_POST["alumno_id"] ?? 0);
 $asistio = $_POST["asistio"] ?? 0;
+$asistio = (int)$asistio === 1 ? 1 : 0;
 
-if (!$actividad_id || !$sesion_id || !$alumno_id) {
+if (!$actividad_id || !$sesion_id || !$miembro_id) {
     echo json_encode(["error" => "Faltan datos"]);
     exit;
 }
@@ -15,13 +16,13 @@ if (!$actividad_id || !$sesion_id || !$alumno_id) {
 $stmt = $pdo->prepare("
     SELECT COUNT(*) 
     FROM actividades_inscripciones 
-    WHERE actividad_id = ? AND alumno_id = ? AND estado IN ('Inscrito','Finalizado')
+    WHERE actividad_id = ? AND miembro_id = ? AND estado IN ('Inscrito','Finalizado')
 ");
-$stmt->execute([$actividad_id, $alumno_id]);
+$stmt->execute([$actividad_id, $miembro_id]);
 $inscrito = (int)$stmt->fetchColumn();
 
 if ($inscrito === 0) {
-    echo json_encode(["error" => "El alumno no esta inscrito en esta actividad"]);
+    echo json_encode(["error" => "El miembro no esta inscrito en esta actividad"]);
     exit;
 }
 
@@ -42,11 +43,11 @@ if ($sesion_ok === 0) {
 /* 3) Insertar o actualizar asistencia (upsert) */
 try {
     $stmt = $pdo->prepare("
-        INSERT INTO actividades_asistencia_sesiones (actividad_id, sesion_id, alumno_id, asistio)
+        INSERT INTO actividades_asistencia_sesiones (actividad_id, sesion_id, miembro_id, asistio)
         VALUES (?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE asistio = VALUES(asistio)
     ");
-    $stmt->execute([$actividad_id, $sesion_id, $alumno_id, $asistio]);
+    $stmt->execute([$actividad_id, $sesion_id, $miembro_id, $asistio]);
 
     echo json_encode(["success" => true, "msg" => "Asistencia registrada"]);
 } catch (PDOException $e) {

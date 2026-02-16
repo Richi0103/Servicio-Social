@@ -100,7 +100,7 @@ async function initCapCrear() {
           },
           body: new URLSearchParams({
             capitulo_id: encCapitulo,
-            profesor_id: encProfesor,
+            asesor_id: encProfesor,
           }),
         });
 
@@ -111,10 +111,10 @@ async function initCapCrear() {
         }
 
         msg2.style.color = "green";
-        msg2.textContent = "Profesor asignado.";
+        msg2.textContent = "Encargado asignado.";
       } catch (error) {
         console.error(error);
-        msg2.textContent = "Error al asignar profesor.";
+        msg2.textContent = "Error al asignar encargado.";
       }
     });
   }
@@ -154,13 +154,13 @@ async function initCapCrear() {
         }
 
         msgAl.style.color = "green";
-        msgAl.textContent = "Alumno creado y asignado.";
+        msgAl.textContent = "Miembro creado y asignado.";
         alumnosForm.reset();
         await cargarAlumnosSelect("alumnoExistente");
       } catch (error) {
         console.error(error);
         msgAl.style.color = "red";
-        msgAl.textContent = "Error al crear alumno.";
+        msgAl.textContent = "Error al crear miembro.";
       }
     });
   }
@@ -169,7 +169,7 @@ async function initCapCrear() {
     asignarAlumnoForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const alumno_id = document.getElementById("alumnoExistente").value;
+      const miembro_id = document.getElementById("alumnoExistente").value;
       const capitulo_id = document.getElementById("capituloExistente").value;
 
       try {
@@ -177,7 +177,7 @@ async function initCapCrear() {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({
-            alumno_id,
+            miembro_id,
             capitulo_id,
           }),
         });
@@ -190,11 +190,11 @@ async function initCapCrear() {
         }
 
         msgAl2.style.color = "green";
-        msgAl2.textContent = "Alumno asignado.";
+        msgAl2.textContent = "Miembro asignado.";
       } catch (error) {
         console.error(error);
         msgAl2.style.color = "red";
-        msgAl2.textContent = "Error al asignar alumno.";
+        msgAl2.textContent = "Error al asignar miembro.";
       }
     });
   }
@@ -523,7 +523,7 @@ async function cargarProfesoresSelect(selectId) {
     }
 
     if (!Array.isArray(data) || data.length === 0) {
-      select.innerHTML = `<option value="">Sin profesores</option>`;
+      select.innerHTML = `<option value="">Sin asesores</option>`;
       return;
     }
 
@@ -556,7 +556,7 @@ async function cargarAlumnosSelect(selectId) {
     }
 
     if (!Array.isArray(data) || data.length === 0) {
-      select.innerHTML = `<option value="">Sin alumnos</option>`;
+      select.innerHTML = `<option value="">Sin miembros</option>`;
       return;
     }
 

@@ -113,7 +113,7 @@ async function cargarInscritosConAsistencia(actividadId) {
       <table class="table">
         <thead>
           <tr>
-            <th>Alumno</th>
+            <th>Miembro</th>
             <th>% Asistencia</th>
             <th>Sesiones</th>
             <th>Estado</th>
@@ -137,7 +137,7 @@ async function cargarInscritosConAsistencia(actividadId) {
         btnHtml = `
             <button
               class="${btnClass}"
-              data-otorgar="${a.alumno_id}"
+              data-otorgar="${a.miembro_id || a.alumno_id}"
               data-ready="${readyAttr}"
               data-porcentaje="${a.porcentaje}"
             >
@@ -176,8 +176,8 @@ async function cargarInscritosConAsistencia(actividadId) {
           return;
         }
 
-        const alumnoId = btn.getAttribute("data-otorgar");
-        await otorgarCredito(actividadId, alumnoId);
+        const miembroId = btn.getAttribute("data-otorgar");
+        await otorgarCredito(actividadId, miembroId);
       });
     });
   } catch (e) {
@@ -187,7 +187,7 @@ async function cargarInscritosConAsistencia(actividadId) {
   }
 }
 
-async function otorgarCredito(actividadId, alumnoId) {
+async function otorgarCredito(actividadId, miembroId) {
   const msg = document.getElementById("actMsg");
   msg.style.color = "red";
   msg.textContent = "Otorgando crédito...";
@@ -200,7 +200,7 @@ async function otorgarCredito(actividadId, alumnoId) {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         actividad_id: actividadId,
-        alumno_id: alumnoId,
+        miembro_id: miembroId,
         otorgado_por: usuario.id,
       }),
     });
