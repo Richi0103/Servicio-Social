@@ -64,7 +64,6 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--azul-500);
-  box-shadow: 0 0 0 3px rgba(60, 111, 241, 0.12);
 }
 
 textarea {
@@ -257,7 +256,6 @@ hr {
   flex-direction: column;
   gap: 10px;
   background: var(--blanco);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
 }
 
 .item h3 {
@@ -357,6 +355,58 @@ hr {
   border-radius: 12px;
   padding: 14px;
   background: #f9fbff;
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 999px;
+  background: #eef2fb;
+  border: 1px solid var(--gris-200);
+  margin-bottom: 18px;
+  align-items: center;
+}
+
+.tab-btn {
+  background: transparent;
+  color: var(--azul-900);
+  border: none;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.tab-btn.active {
+  background: var(--azul-600);
+  color: var(--blanco);
+}
+
+.tab-panel[hidden],
+.hidden {
+  display: none;
+}
+
+.admin-edit {
+  margin-top: 18px;
+}
+
+.session-new {
+  border-style: dashed;
+  background: #f7f9ff;
+}
+
+.sessions-list {
+  display: grid;
+  gap: 12px;
+}
+
+.session-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .session-title {

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Solicitudes - Capítulo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="userbox">
+          <div class="avatar" id="avatar"></div>
+
+          <div>
+            <h1>Solicitudes de membresía</h1>
+            <p id="userInfo" class="small"></p>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button id="backBtn" class="btn-secondary">Volver</button>
+          <button id="logoutBtn" class="btn-secondary">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <main class="card">
+        <h2>Solicitudes pendientes</h2>
+
+        <div class="form-grid">
+          <div>
+            <label>Buscar</label>
+            <input
+              type="text"
+              id="solicitudSearch"
+              placeholder="Nombre, control o correo"
+            />
+          </div>
+          <div>
+            <label>Capítulo</label>
+            <select id="capituloSelectSolicitudes" class="selectCap">
+              <option value="">-- Selecciona --</option>
+            </select>
+          </div>
+        </div>
+
+        <hr />
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>N. control</th>
+              <th>Email</th>
+              <th>Tecnológico</th>
+              <th>Motivo</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="solicitudesBody"></tbody>
+        </table>
+
+        <p class="msg" id="solicitudesMsg"></p>
+      </main>
+    </div>
+
+    <script src="funciones.js"></script>
+    <script src="solicitudes.js"></script>
+  </body>
+</html>

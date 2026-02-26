@@ -18,6 +18,11 @@
       </header>
 
       <main class="card">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="tabCrear">Crear</button>
+          <button class="tab-btn" data-tab="tabAdmin">Administrar</button>
+        </div>
+        <section id="tabCrear" class="tab-panel">
         <h2>Crear capítulo</h2>
         <p class="small">Campo obligatorio*</p>
         <form id="capituloForm" class="form-grid">
@@ -60,7 +65,7 @@
         <p id="adminMsg1" class="msg"></p>
 
         <hr />
-
+        <!-- 
         <h2>Asignar encargado</h2>
         <form id="encargadoForm" class="form-grid">
           <div>
@@ -159,7 +164,7 @@
         <p id="adminMsgAl2" class="msg"></p>
 
         <hr />
-
+        -->
         <h2>Crear actividad</h2>
         <form id="actividadForm" class="form-grid">
           <div>
@@ -198,7 +203,7 @@
           </div>
           <div>
             <label>Cupo</label>
-            <input id="actCupo" type="number" min="1" max="30" required />
+            <input id="actCupo" type="number" min="1" max="150" required />
           </div>
           <div>
             <label>Otorga crédito</label>
@@ -263,6 +268,114 @@
         </form>
 
         <p id="adminMsg" class="msg"></p>
+        </section>
+
+        <section id="tabAdmin" class="tab-panel" hidden>
+          <h2>Administrar actividades</h2>
+          <p class="small">Selecciona un capítulo para listar actividades y editar sesiones.</p>
+
+          <div class="form-grid">
+            <div>
+              <label>Capítulo</label>
+              <select id="adminCapitulo" class="selectCap">
+                <option value="">-- Selecciona --</option>
+              </select>
+            </div>
+            <div>
+              <label>Actividad</label>
+              <select id="adminActividad">
+                <option value="">-- Selecciona --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" id="adminRefreshBtn" class="btn-secondary">Cargar</button>
+          </div>
+
+          <p id="adminMsgAct" class="msg"></p>
+
+          <div id="adminEditWrap" class="admin-edit hidden">
+            <h3>Editar actividad</h3>
+            <form id="adminActividadForm" class="form-grid">
+              <div>
+                <label>Tipo</label>
+                <select id="adminTipo" required>
+                  <option value="">-- Selecciona --</option>
+                  <option value="Curso">Curso</option>
+                  <option value="Taller">Taller</option>
+                  <option value="Evento">Evento</option>
+                  <option value="Conferencia">Conferencia</option>
+                </select>
+              </div>
+              <div>
+                <label>Título</label>
+                <input id="adminTitulo" type="text" required />
+              </div>
+              <div class="full">
+                <label>Descripción</label>
+                <textarea id="adminDescripcion" required maxlength="500"></textarea>
+              </div>
+              <div>
+                <label>Lugar</label>
+                <input id="adminLugar" type="text" required />
+              </div>
+              <div>
+                <label>Cupo</label>
+                <input id="adminCupo" type="number" min="1" max="30" required />
+              </div>
+              <div>
+                <label>Otorga crédito</label>
+                <input id="adminOtorgaCreditos" type="checkbox" />
+              </div>
+              <div>
+                <label>Créditos</label>
+                <input id="adminCreditos" type="number" min="0" max="1" maxlength="1" />
+              </div>
+              <div>
+                <label>Fecha inicio</label>
+                <input id="adminFechaInicio" type="datetime-local" required />
+              </div>
+              <div>
+                <label>Fecha fin</label>
+                <input id="adminFechaFin" type="datetime-local" required />
+              </div>
+              <div class="full form-actions">
+                <button type="submit" class="btn">Guardar cambios</button>
+                <button type="button" id="adminDeleteActividad" class="btn_detele">Eliminar actividad</button>
+              </div>
+            </form>
+
+            <h3>Sesiones</h3>
+            <div class="session-card session-new">
+              <h4 class="session-title">Nueva sesión</h4>
+              <div class="form-grid">
+                <div>
+                  <label>Título</label>
+                  <input id="adminNuevaSesionTitulo" type="text" />
+                </div>
+                <div>
+                  <label>Descripción</label>
+                  <input id="adminNuevaSesionDescripcion" type="text" />
+                </div>
+                <div>
+                  <label>Fecha inicio</label>
+                  <input id="adminNuevaSesionInicio" type="datetime-local" />
+                </div>
+                <div>
+                  <label>Fecha fin</label>
+                  <input id="adminNuevaSesionFin" type="datetime-local" />
+                </div>
+              </div>
+              <div class="session-actions">
+                <button type="button" id="adminAddSesionBtn" class="btn">
+                  Agregar sesión
+                </button>
+              </div>
+            </div> <br>
+            <div id="adminSesionesList" class="sessions-list"></div>
+          </div>
+        </section>
       </main>
     </div>
 

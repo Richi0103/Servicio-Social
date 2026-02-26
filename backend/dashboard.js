@@ -18,7 +18,7 @@ async function initDashboard() {
     if (usuario.foto_perfil) {
       avatar.style.backgroundImage = `url(${usuario.foto_perfil})`;
     } else {
-      avatar.style.backgroundImage = "none"; // se queda gris
+      avatar.style.backgroundImage = "none"; 
     }
   }
 
@@ -104,6 +104,12 @@ async function initDashboard() {
   //boton crear capitulo
   const capBtn = document.getElementById("adminBtn");
   capBtn.addEventListener("click", crearCapitulo);
+
+  //boton solicitudes
+  const solicitudesBtn = document.getElementById("solicitudesBtn");
+  if (solicitudesBtn) {
+    solicitudesBtn.addEventListener("click", verSolicitudes);
+  }
 
   //cargar capítulos
   await cargarCapitulosEnSelect();
@@ -228,4 +234,9 @@ async function cargarActividades(capituloId) {
     cont.innerHTML = "";
     msg.textContent = "Error cargando actividades";
   }
+}
+
+
+function verSolicitudes() {
+  window.location.href = "solicitudes.html";
 }

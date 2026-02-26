@@ -17,17 +17,34 @@ $color = $color !== "" ? $color : null;
 $creado_por = $creado_por ? (int)$creado_por : null;
 
 try {
+    $pdo->beginTransaction();
+
     $stmt = $pdo->prepare("
         INSERT INTO capitulos (clave, nombre, descripcion, area, color, activo, creado_por, actualizado_por)
         VALUES (?, ?, ?, ?, ?, 1, ?, ?)
     ");
     $stmt->execute([$clave, $nombre, $descripcion, $area, $color, $creado_por, $creado_por]);
 
+    $capitulo_id = (int)$pdo->lastInsertId();
+
+    if ($creado_por) {
+        $stmt2 = $pdo->prepare("
+            INSERT INTO capitulos_asesores (capitulo_id, asesor_id, tipo)
+            VALUES (?, ?, 'Encargado')
+        ");
+        $stmt2->execute([$capitulo_id, $creado_por]);
+    }
+
+    $pdo->commit();
+
     echo json_encode([
         "success" => true,
-        "id" => (int)$pdo->lastInsertId()
+        "id" => $capitulo_id
     ]);
 } catch (PDOException $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     if ((int)$e->getCode() === 23000) {
         echo json_encode(["error" => "La clave ya existe"]);
         exit;
