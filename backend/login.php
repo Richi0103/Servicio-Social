@@ -2,11 +2,23 @@
 require "config.php";
 
 $identificador = trim($_POST["email"] ?? ($_POST["username"] ?? ($_POST["identificador"] ?? "")));
-$password = $_POST["password"] ?? "";
+$contrasena = $_POST["contrasena"] ?? ($_POST["password"] ?? "");
 
-if (!$identificador || !$password) {
+if (!$identificador || !$contrasena) {
     echo json_encode(["error" => "Faltan datos"]);
     exit;
+}
+
+function contrasenaValida(string $ingresada, string $hashGuardado): bool {
+    if ($ingresada === $hashGuardado) {
+        return true;
+    }
+
+    if (password_get_info($hashGuardado)["algo"] !== 0) {
+        return password_verify($ingresada, $hashGuardado);
+    }
+
+    return false;
 }
 
 $stmt = $pdo->prepare("
@@ -24,16 +36,26 @@ if (!$user) {
 }
 
 if ((int)$user["activo"] === 0) {
-    echo json_encode(["error" => "Miembro inactivo"]);
+    echo json_encode(["error" => "Cuenta inactiva"]);
     exit;
 }
 
-if ($password !== $user["password_hash"]) {
-    echo json_encode(["error" => "Password incorrecta"]);
+if ((int)$user["verificado"] === 0) {
+    echo json_encode(["error" => "Tu cuenta está pendiente de verificación"]);
     exit;
 }
 
-/* Obtener roles */
+if (!contrasenaValida($contrasena, $user["password_hash"])) {
+    echo json_encode(["error" => "Contraseña incorrecta"]);
+    exit;
+}
+
+if ($contrasena === $user["password_hash"]) {
+    $nuevoHash = password_hash($contrasena, PASSWORD_DEFAULT);
+    $update = $pdo->prepare("UPDATE miembros SET password_hash = ? WHERE id = ?");
+    $update->execute([$nuevoHash, $user["id"]]);
+}
+
 $stmt2 = $pdo->prepare("
     SELECT r.nombre
     FROM miembros_roles mr
@@ -43,7 +65,6 @@ $stmt2 = $pdo->prepare("
 $stmt2->execute([$user["id"]]);
 $roles = $stmt2->fetchAll(PDO::FETCH_COLUMN);
 
-/* Respuesta */
 echo json_encode([
     "success" => true,
     "user" => [

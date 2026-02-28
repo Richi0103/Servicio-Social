@@ -1,18 +1,29 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
-  if (loginForm) {
-    loginForm.addEventListener("submit", login);
-  }
+  if (!loginForm) return;
+
+  loginForm.addEventListener("submit", login);
 });
 
 async function login(e) {
   e.preventDefault();
 
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const identificadorInput =
+    document.getElementById("loginIdentificador") || document.getElementById("email");
+  const contrasenaInput =
+    document.getElementById("loginContrasena") || document.getElementById("password");
   const msg = document.getElementById("loginMsg");
 
-  msg.textContent = "Cargando...";
+  if (!identificadorInput || !contrasenaInput || !msg) {
+    console.error("Faltan elementos del formulario de login");
+    return;
+  }
+
+  const identificador = identificadorInput.value.trim();
+  const contrasena = contrasenaInput.value;
+
+  msg.style.color = "#64748b";
+  msg.textContent = "Validando acceso...";
 
   try {
     const res = await fetch(`${API_URL}/login.php`, {
@@ -21,29 +32,30 @@ async function login(e) {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        email,
-        password,
+        identificador,
+        contrasena,
       }),
     });
 
     const data = await res.json();
 
     if (data.error) {
+      msg.style.color = "#b0232a";
       msg.textContent = data.error;
       return;
     }
 
-    //sesion en localStorage
     localStorage.setItem("usuario", JSON.stringify(data.user));
 
-    msg.style.color = "green";
-    msg.textContent = "Verificado, redirigiendo...";
+    msg.style.color = "#1a7f37";
+    msg.textContent = "Acceso correcto, redirigiendo...";
 
     setTimeout(() => {
       window.location.href = "dashboard.html";
-    }, 1000);
+    }, 900);
   } catch (error) {
     console.error(error);
+    msg.style.color = "#b0232a";
     msg.textContent = "Error de conexión con el servidor";
   }
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de administrador - Capítulos TECNM</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-page">
+  <div class="login-container login-container-form">
+    <h1>Capítulos TECNM</h1>
+    <h2>Registro de administrador</h2>
+
+    <form id="registroAdminForm">
+      <label>Nombre</label>
+      <input type="text" id="regNombre" required>
+
+      <label>Apellidos</label>
+      <input type="text" id="regApellidos" required>
+
+      <label>Nombre de usuario</label>
+      <input type="text" id="regUsername" required>
+
+      <label>Correo electrónico</label>
+      <input type="email" id="regEmail" required>
+
+      <label>Teléfono</label>
+      <input type="tel" id="regTelefono" required>
+
+      <label>Contraseña</label>
+      <input type="password" id="regContrasena" minlength="6" required>
+
+      <label>Confirmar contraseña</label>
+      <input type="password" id="regContrasena2" minlength="6" required>
+
+      <button type="submit" class="btn">Crear cuenta</button>
+    </form>
+
+    <p id="registroMsg" class="msg"></p>
+
+    <div class="login-links">
+      <a href="index.html">Volver al login</a>
+    </div>
+  </div>
+
+  <script src="funciones.js"></script>
+  <script src="registro_admin.js"></script>
+</body>
+</html>

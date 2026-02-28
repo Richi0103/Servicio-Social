@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar contraseña - Capítulos TECNM</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <h1>Capítulos TECNM</h1>
+    <h2>Recuperar contraseña</h2>
+
+    <form id="recuperacionForm">
+      <label>Nombre de usuario</label>
+      <input type="text" id="recUsername" required>
+
+      <label>Correo electrónico</label>
+      <input type="email" id="recEmail" required>
+
+      <label>Nueva contraseña</label>
+      <input type="password" id="recContrasena" minlength="6" required>
+
+      <label>Confirmar nueva contraseña</label>
+      <input type="password" id="recContrasena2" minlength="6" required>
+
+      <button type="submit" class="btn">Actualizar contraseña</button>
+    </form>
+
+    <p id="recMsg" class="msg"></p>
+
+    <div class="login-links">
+      <a href="index.html">Volver al login</a>
+    </div>
+  </div>
+
+  <script src="funciones.js"></script>
+  <script src="recuperar_contrasena.js"></script>
+</body>
+</html>
