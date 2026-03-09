@@ -23,9 +23,10 @@ CREATE TABLE roles (
 
 INSERT INTO roles (nombre, descripcion) VALUES
   ('Miembro', 'Miembro base del capitulo'),
-  ('Asesor', 'Miembro asesor del capitulo'),
-  ('Encargado', 'Miembro encargado con permisos de gestion del capitulo'),
-  ('Admin', 'Administrador del capitulo');
+  ('Asesor', 'Asesor del capitulo'),
+  ('Presidente', 'Rol de administracion y encargatura general del capitulo'),
+  ('Secretario', 'Rol de encargatura para seguimiento administrativo del capitulo'),
+  ('Tesorero', 'Rol de encargatura para gestion de recursos y costos del capitulo');
 
 CREATE TABLE miembros (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -74,6 +75,8 @@ CREATE TABLE capitulos (
   descripcion TEXT,
   area VARCHAR(150),
   logo VARCHAR(255),
+  pdf VARCHAR(255),
+  costos TEXT,
   color VARCHAR(30),
   activo TINYINT(1) DEFAULT 1,
 
@@ -90,6 +93,28 @@ CREATE TABLE capitulos (
 
 CREATE INDEX idx_capitulos_activo ON capitulos(activo);
 CREATE INDEX idx_capitulos_area ON capitulos(area);
+
+-- =========================================================
+-- TEMARIOS DE CAPITULOS
+-- =========================================================
+
+CREATE TABLE capitulos_temarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  capitulo_id INT NOT NULL,
+  titulo VARCHAR(200) NOT NULL,
+  descripcion VARCHAR(255),
+  archivo_pdf VARCHAR(255) NOT NULL,
+  version VARCHAR(50),
+  activo TINYINT(1) DEFAULT 1,
+  subido_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  subido_por INT NULL,
+
+  FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
+  FOREIGN KEY (subido_por) REFERENCES miembros(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_capitulos_temarios_capitulo ON capitulos_temarios(capitulo_id);
+CREATE INDEX idx_capitulos_temarios_activo ON capitulos_temarios(activo);
 
 -- =========================================================
 -- MIEMBROS EN CAPITULOS
@@ -121,7 +146,7 @@ CREATE TABLE capitulos_asesores (
   id INT AUTO_INCREMENT PRIMARY KEY,
   capitulo_id INT NOT NULL,
   asesor_id INT NOT NULL,
-  tipo ENUM('Asesor','Encargado') DEFAULT 'Asesor',
+  tipo ENUM('Asesor','Presidente','Secretario','Tesorero') DEFAULT 'Asesor',
 
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -146,6 +171,8 @@ CREATE TABLE actividades (
   descripcion TEXT,
   lugar VARCHAR(200),
   cupo INT,
+  costo DECIMAL(10,2) DEFAULT 0.00,
+  moneda CHAR(3) DEFAULT 'MXN',
 
   otorga_creditos TINYINT(1) DEFAULT 0,
   creditos INT DEFAULT 0,
@@ -167,6 +194,7 @@ CREATE TABLE actividades (
   FOREIGN KEY (actualizado_por) REFERENCES miembros(id) ON DELETE SET NULL,
 
   CHECK (fecha_fin >= fecha_inicio),
+  CHECK (costo >= 0),
   CHECK (creditos >= 0),
   CHECK (
     (otorga_creditos = 0 AND creditos = 0)
@@ -391,23 +419,23 @@ INSERT INTO miembros_roles (miembro_id, rol_id) VALUES
   (4, 2),
   (4, 3),
   (5, 2),
-  (5, 3),
-  (6, 4),
+  (5, 4),
+  (6, 3),
   (7, 1),
   (8, 1),
   (9, 1);
 
 INSERT INTO capitulos (
-  id, clave, nombre, descripcion, area, logo, color, activo, creado_por, actualizado_por
+  id, clave, nombre, descripcion, area, logo, pdf, costos, color, activo, creado_por, actualizado_por
 ) VALUES
-  (1, 'CAP-MOR', 'Capitulo Morelia', 'Capitulo de tecnologia en Morelia', 'Software', NULL, '#FF6B6B', 1, 6, 6),
-  (2, 'CAP-URU', 'Capitulo Uruapan', 'Capitulo de innovacion en Uruapan', 'Innovacion', NULL, '#4ECDC4', 1, 6, 6),
-  (3, 'CAP-LAZ', 'Capitulo Lazaro', 'Capitulo de redes en Lazaro', 'Redes', NULL, '#FFD166', 1, 6, 6);
+  (1, 'CAP-MOR', 'Capitulo Morelia', 'Capitulo de tecnologia en Morelia', 'Software', NULL, NULL, NULL, '#FF6B6B', 1, 6, 6),
+  (2, 'CAP-URU', 'Capitulo Uruapan', 'Capitulo de innovacion en Uruapan', 'Innovacion', NULL, NULL, NULL, '#4ECDC4', 1, 6, 6),
+  (3, 'CAP-LAZ', 'Capitulo Lazaro', 'Capitulo de redes en Lazaro', 'Redes', NULL, NULL, NULL, '#FFD166', 1, 6, 6);
 
 INSERT INTO capitulos_asesores (capitulo_id, asesor_id, tipo) VALUES
-  (1, 4, 'Encargado'),
-  (2, 5, 'Encargado'),
-  (3, 4, 'Encargado');
+  (1, 4, 'Presidente'),
+  (2, 5, 'Secretario'),
+  (3, 4, 'Tesorero');
 
 INSERT INTO capitulos_miembros (capitulo_id, miembro_id, estado, motivo) VALUES
   (1, 7, 'Inactivo', 'Quiero participar en el capitulo para aprender y apoyar.'),
@@ -416,14 +444,14 @@ INSERT INTO capitulos_miembros (capitulo_id, miembro_id, estado, motivo) VALUES
 
 INSERT INTO actividades (
   id, capitulo_id, tipo, titulo, descripcion, lugar, cupo,
-  otorga_creditos, creditos, fecha_inicio, fecha_fin, estado,
+  costo, moneda, otorga_creditos, creditos, fecha_inicio, fecha_fin, estado,
   creado_por, actualizado_por
 ) VALUES
-  (1, 1, 'Taller', 'Taller de Git', 'Version control basico', 'Aula 1', 30, 0, 0,
+  (1, 1, 'Taller', 'Taller de Git', 'Version control basico', 'Aula 1', 30, 0.00, 'MXN', 0, 0,
    '2024-09-10 10:00:00', '2024-09-10 13:00:00', 'Publicado', 6, 6),
-  (2, 2, 'Conferencia', 'Conferencia IA', 'Introduccion a IA', 'Auditorio', 120, 0, 0,
+  (2, 2, 'Conferencia', 'Conferencia IA', 'Introduccion a IA', 'Auditorio', 120, 50.00, 'MXN', 0, 0,
    '2024-09-12 09:00:00', '2024-09-12 11:00:00', 'Publicado', 6, 6),
-  (3, 3, 'Curso', 'Curso de Redes', 'Fundamentos de redes', 'Lab Redes', 25, 1, 10,
+  (3, 3, 'Curso', 'Curso de Redes', 'Fundamentos de redes', 'Lab Redes', 25, 250.00, 'MXN', 1, 10,
    '2024-09-15 16:00:00', '2024-09-20 18:00:00', 'Publicado', 6, 6);
 
 INSERT INTO actividades_sesiones (
