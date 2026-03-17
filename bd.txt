@@ -126,17 +126,24 @@ CREATE TABLE capitulos_miembros (
   miembro_id INT NOT NULL,
   estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
   motivo VARCHAR(255),
+  calificacion_general DECIMAL(5,2) NULL,
 
   fecha_ingreso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   UNIQUE (capitulo_id, miembro_id),
   FOREIGN KEY (capitulo_id) REFERENCES capitulos(id) ON DELETE CASCADE,
-  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE
+  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE,
+
+  CHECK (
+    calificacion_general IS NULL
+    OR (calificacion_general >= 0 AND calificacion_general <= 100)
+  )
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_capitulos_miembros_capitulo ON capitulos_miembros(capitulo_id);
 CREATE INDEX idx_capitulos_miembros_miembro ON capitulos_miembros(miembro_id);
+CREATE INDEX idx_capitulos_miembros_calificacion ON capitulos_miembros(calificacion_general);
 
 -- =========================================================
 -- ASESORES / RESPONSABLES EN CAPITULOS
@@ -366,6 +373,7 @@ CREATE TABLE miembros_creditos_historial (
 
   creditos_otorgados INT NOT NULL,
   motivo VARCHAR(255),
+  constancia_credito_pdf VARCHAR(255) NULL,
 
   otorgado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   otorgado_por INT NULL,
