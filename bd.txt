@@ -40,6 +40,7 @@ CREATE TABLE miembros (
   foto_perfil MEDIUMTEXT,
   activo TINYINT(1) DEFAULT 1,
   verificado TINYINT(1) DEFAULT 0,
+  permiso_crear_capitulo TINYINT(1) DEFAULT 0,
   tecnologico VARCHAR(150),
 
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -399,14 +400,14 @@ DELIMITER ;
 
 INSERT INTO miembros (
   id, numero_control, nombre, apellidos, username, email, telefono,
-  password_hash, foto_perfil, activo, verificado, tecnologico
+  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico
 ) VALUES
-  (1, 'A0001', 'Juan', 'Perez', 'juan.perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (2, 'A0002', 'Maria', 'Lopez', 'maria.lopez', 'maria.lopez@tec.com', '4430000002', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (3, 'A0003', 'Luis', 'Garcia', 'luis.garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (4, NULL, 'Ana', 'Ramirez', 'ana.ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (5, NULL, 'Carlos', 'Santos', 'carlos.santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 0, 'Instituto Tecnologico de Morelia'),
-  (6, NULL, 'Rogelio', 'CIA', 'rogelio.cia', 'rogelio@tec.com', '4430000006', '1234', NULL, 1, 1, 'Instituto Tecnologico de Morelia');
+  (1, 'A0001', 'Juan', 'Perez', 'juan.perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
+  (2, 'A0002', 'Maria', 'Lopez', 'maria.lopez', 'maria.lopez@tec.com', '4430000002', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
+  (3, 'A0003', 'Luis', 'Garcia', 'luis.garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
+  (4, NULL, 'Ana', 'Ramirez', 'ana.ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
+  (5, NULL, 'Carlos', 'Santos', 'carlos.santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
+  (6, NULL, 'Rogelio', 'CIA', 'rogelio.cia', 'rogelio@tec.com', '4430000006', '1234', NULL, 1, 1, 1, 'Instituto Tecnologico de Morelia');
 
 -- =========================================================
 -- SOLICITUDES DE PRUEBA (MIEMBROS + CAPITULOS_MIEMBROS)
@@ -414,11 +415,11 @@ INSERT INTO miembros (
 
 INSERT INTO miembros (
   id, numero_control, nombre, apellidos, username, email, telefono,
-  password_hash, foto_perfil, activo, verificado, tecnologico
+  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico
 ) VALUES
-  (7, 'A01010101', 'Mariana', 'Lopez', 'mariana.lopez', 'mariana.lopez@tec.com', '4430001001', '1234', NULL, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (8, 'A01010102', 'Ivan', 'Garcia', 'ivan.garcia', 'ivan.garcia@tec.com', '4430001002', '1234', NULL, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (9, 'A01010103', 'Carla', 'Sanchez', 'carla.sanchez', 'carla.sanchez@tec.com', '4430001003', '1234', NULL, 0, 0, 'Instituto Tecnologico de Morelia');
+  (7, 'A01010101', 'Mariana', 'Lopez', 'mariana.lopez', 'mariana.lopez@tec.com', '4430001001', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia'),
+  (8, 'A01010102', 'Ivan', 'Garcia', 'ivan.garcia', 'ivan.garcia@tec.com', '4430001002', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia'),
+  (9, 'A01010103', 'Carla', 'Sanchez', 'carla.sanchez', 'carla.sanchez@tec.com', '4430001003', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia');
 
 INSERT INTO miembros_roles (miembro_id, rol_id) VALUES
   (1, 1),
