@@ -75,6 +75,7 @@ CREATE TABLE capitulos (
   nombre VARCHAR(150) NOT NULL,
   descripcion TEXT,
   area VARCHAR(150),
+  requiere_solicitud TINYINT(1) DEFAULT 1,
   logo VARCHAR(255),
   pdf VARCHAR(255),
   costos TEXT,
@@ -435,11 +436,11 @@ INSERT INTO miembros_roles (miembro_id, rol_id) VALUES
   (9, 1);
 
 INSERT INTO capitulos (
-  id, clave, nombre, descripcion, area, logo, pdf, costos, color, activo, creado_por, actualizado_por
+  id, clave, nombre, descripcion, area, requiere_solicitud, logo, pdf, costos, color, activo, creado_por, actualizado_por
 ) VALUES
-  (1, 'CAP-MOR', 'Capitulo Morelia', 'Capitulo de tecnologia en Morelia', 'Software', NULL, NULL, NULL, '#FF6B6B', 1, 6, 6),
-  (2, 'CAP-URU', 'Capitulo Uruapan', 'Capitulo de innovacion en Uruapan', 'Innovacion', NULL, NULL, NULL, '#4ECDC4', 1, 6, 6),
-  (3, 'CAP-LAZ', 'Capitulo Lazaro', 'Capitulo de redes en Lazaro', 'Redes', NULL, NULL, NULL, '#FFD166', 1, 6, 6);
+  (1, 'CAP-MOR', 'Capitulo Morelia', 'Capitulo de tecnologia en Morelia', 'Software', 1, NULL, NULL, NULL, '#FF6B6B', 1, 6, 6),
+  (2, 'CAP-URU', 'Capitulo Uruapan', 'Capitulo de innovacion en Uruapan', 'Innovacion', 0, NULL, NULL, NULL, '#4ECDC4', 1, 6, 6),
+  (3, 'CAP-LAZ', 'Capitulo Lazaro', 'Capitulo de redes en Lazaro', 'Redes', 1, NULL, NULL, NULL, '#FFD166', 1, 6, 6);
 
 INSERT INTO capitulos_asesores (capitulo_id, asesor_id, tipo) VALUES
   (1, 4, 'Presidente'),
