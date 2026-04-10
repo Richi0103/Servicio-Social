@@ -401,14 +401,15 @@ DELIMITER ;
 
 INSERT INTO miembros (
   id, numero_control, nombre, apellidos, username, email, telefono,
-  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico
+  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico,
+  creado_en, actualizado_en
 ) VALUES
-  (1, 'A0001', 'Juan', 'Perez', 'juan.perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (2, 'A0002', 'Maria', 'Lopez', 'maria.lopez', 'maria.lopez@tec.com', '4430000002', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (3, 'A0003', 'Luis', 'Garcia', 'luis.garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (4, NULL, 'Ana', 'Ramirez', 'ana.ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (5, NULL, 'Carlos', 'Santos', 'carlos.santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (6, NULL, 'Rogelio', 'CIA', 'rogelio.cia', 'rogelio@tec.com', '4430000006', '1234', NULL, 1, 1, 1, 'Instituto Tecnologico de Morelia');
+  (1, '22120001', 'Juan', 'Perez', 'juan.perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:00:00', '2025-01-08 09:00:00'),
+  (2, '22120002', 'Maria', 'Lopez', 'maria.lopez', 'maria.lopez@tec.com', '4430000002', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:10:00', '2025-01-08 09:10:00'),
+  (3, '22120003', 'Luis', 'Garcia', 'luis.garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:20:00', '2025-01-08 09:20:00'),
+  (4, '22120004', 'Ana', 'Ramirez', 'ana.ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:30:00', '2025-01-08 09:30:00'),
+  (5, '22120005', 'Carlos', 'Santos', 'carlos.santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:40:00', '2025-01-08 09:40:00'),
+  (6, '22120006', 'Rogelio', 'CIA', 'rogelio.cia', 'rogelio@tec.com', '4430000006', '1234', NULL, 1, 1, 1, 'Instituto Tecnologico de Morelia', '2025-01-08 10:00:00', '2025-01-08 10:00:00');
 
 -- =========================================================
 -- SOLICITUDES DE PRUEBA (MIEMBROS + CAPITULOS_MIEMBROS)
@@ -416,11 +417,12 @@ INSERT INTO miembros (
 
 INSERT INTO miembros (
   id, numero_control, nombre, apellidos, username, email, telefono,
-  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico
+  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico,
+  creado_en, actualizado_en
 ) VALUES
-  (7, 'A01010101', 'Mariana', 'Lopez', 'mariana.lopez', 'mariana.lopez@tec.com', '4430001001', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (8, 'A01010102', 'Ivan', 'Garcia', 'ivan.garcia', 'ivan.garcia@tec.com', '4430001002', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia'),
-  (9, 'A01010103', 'Carla', 'Sanchez', 'carla.sanchez', 'carla.sanchez@tec.com', '4430001003', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia');
+  (7, '23120101', 'Mariana', 'Lopez', 'mariana.lopez', 'mariana.lopez@tec.com', '4430001001', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia', '2025-02-01 08:30:00', '2025-02-01 08:30:00'),
+  (8, '23120102', 'Ivan', 'Garcia', 'ivan.garcia', 'ivan.garcia@tec.com', '4430001002', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia', '2025-02-02 09:00:00', '2025-02-02 09:00:00'),
+  (9, '23120103', 'Carla', 'Sanchez', 'carla.sanchez', 'carla.sanchez@tec.com', '4430001003', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia', '2025-02-03 09:15:00', '2025-02-03 09:15:00');
 
 INSERT INTO miembros_roles (miembro_id, rol_id) VALUES
   (1, 1),
@@ -436,40 +438,47 @@ INSERT INTO miembros_roles (miembro_id, rol_id) VALUES
   (9, 1);
 
 INSERT INTO capitulos (
-  id, clave, nombre, descripcion, area, requiere_solicitud, logo, pdf, costos, color, activo, creado_por, actualizado_por
+  id, clave, nombre, descripcion, area, requiere_solicitud, logo, pdf, costos, color, activo,
+  creado_en, actualizado_en, creado_por, actualizado_por
 ) VALUES
-  (1, 'CAP-MOR', 'Capitulo Morelia', 'Capitulo de tecnologia en Morelia', 'Software', 1, NULL, NULL, NULL, '#FF6B6B', 1, 6, 6),
-  (2, 'CAP-URU', 'Capitulo Uruapan', 'Capitulo de innovacion en Uruapan', 'Innovacion', 0, NULL, NULL, NULL, '#4ECDC4', 1, 6, 6),
-  (3, 'CAP-LAZ', 'Capitulo Lazaro', 'Capitulo de redes en Lazaro', 'Redes', 1, NULL, NULL, NULL, '#FFD166', 1, 6, 6);
+  (1, 'CAP-MOR-001', 'Capitulo Morelia', 'Capitulo de tecnologia en Morelia', 'Programación', 1, NULL, NULL, NULL, '#FF6B6B', 1, '2025-02-10 10:00:00', '2025-02-10 10:00:00', 6, 6),
+  (2, 'CAP-MOR-002', 'Capitulo Uruapan', 'Capitulo de innovacion en Uruapan', 'Industrial', 0, NULL, NULL, NULL, '#4ECDC4', 1, '2025-02-12 11:00:00', '2025-02-12 11:00:00', 6, 6),
+  (3, 'CAP-MOR-003', 'Capitulo Lazaro', 'Capitulo de redes en Lazaro', 'Ciberseguridad', 1, NULL, NULL, NULL, '#FFD166', 1, '2025-02-14 12:00:00', '2025-02-14 12:00:00', 6, 6);
 
-INSERT INTO capitulos_asesores (capitulo_id, asesor_id, tipo) VALUES
-  (1, 4, 'Presidente'),
-  (2, 5, 'Secretario'),
-  (3, 4, 'Tesorero');
+INSERT INTO capitulos_asesores (capitulo_id, asesor_id, tipo, creado_en) VALUES
+  (1, 6, 'Presidente', '2025-02-10 10:10:00'),
+  (2, 5, 'Secretario', '2025-02-12 11:10:00'),
+  (3, 4, 'Tesorero', '2025-02-14 12:10:00');
 
-INSERT INTO capitulos_miembros (capitulo_id, miembro_id, estado, motivo) VALUES
-  (1, 7, 'Inactivo', 'Quiero participar en el capitulo para aprender y apoyar.'),
-  (1, 8, 'Inactivo', 'Me interesa asistir a actividades y obtener creditos.'),
-  (2, 9, 'Inactivo', 'Busco experiencia en proyectos del capitulo.');
+INSERT INTO capitulos_miembros (
+  capitulo_id, miembro_id, estado, motivo, calificacion_general, fecha_ingreso, creado_en
+) VALUES
+  (1, 1, 'Activo', NULL, 92.50, '2025-02-11 09:00:00', '2025-02-11 09:00:00'),
+  (1, 2, 'Activo', NULL, 88.00, '2025-02-11 09:10:00', '2025-02-11 09:10:00'),
+  (1, 3, 'Activo', NULL, 90.00, '2025-02-11 09:20:00', '2025-02-11 09:20:00'),
+  (1, 6, 'Activo', NULL, NULL, '2025-02-10 10:15:00', '2025-02-10 10:15:00'),
+  (1, 7, 'Inactivo', 'Quiero participar en el capitulo para aprender y apoyar.', NULL, '2025-03-01 08:00:00', '2025-03-01 08:00:00'),
+  (1, 8, 'Inactivo', 'Me interesa asistir a actividades y obtener creditos.', NULL, '2025-03-02 08:15:00', '2025-03-02 08:15:00'),
+  (2, 9, 'Inactivo', 'Busco experiencia en proyectos del capitulo.', NULL, '2025-03-03 08:30:00', '2025-03-03 08:30:00');
 
 INSERT INTO actividades (
   id, capitulo_id, tipo, titulo, descripcion, lugar, cupo,
   costo, moneda, otorga_creditos, creditos, fecha_inicio, fecha_fin, estado,
-  creado_por, actualizado_por
+  creado_en, actualizado_en, creado_por, actualizado_por
 ) VALUES
   (1, 1, 'Taller', 'Taller de Git', 'Version control basico', 'Aula 1', 30, 0.00, 'MXN', 0, 0,
-   '2024-09-10 10:00:00', '2024-09-10 13:00:00', 'Publicado', 6, 6),
+   '2025-03-10 10:00:00', '2025-03-10 13:00:00', 'Publicado', '2025-02-20 10:00:00', '2025-02-20 10:00:00', 6, 6),
   (2, 2, 'Conferencia', 'Conferencia IA', 'Introduccion a IA', 'Auditorio', 120, 50.00, 'MXN', 0, 0,
-   '2024-09-12 09:00:00', '2024-09-12 11:00:00', 'Publicado', 6, 6),
+   '2025-03-12 09:00:00', '2025-03-12 11:00:00', 'Publicado', '2025-02-21 11:00:00', '2025-02-21 11:00:00', 6, 6),
   (3, 3, 'Curso', 'Curso de Redes', 'Fundamentos de redes', 'Lab Redes', 25, 250.00, 'MXN', 1, 10,
-   '2024-09-15 16:00:00', '2024-09-20 18:00:00', 'Publicado', 6, 6);
+   '2025-03-15 16:00:00', '2025-03-20 18:00:00', 'Publicado', '2025-02-22 12:00:00', '2025-02-22 12:00:00', 6, 6);
 
 INSERT INTO actividades_sesiones (
   actividad_id, titulo, descripcion, fecha_inicio, fecha_fin
 ) VALUES
-  (1, 'Sesion 1', 'Introduccion', '2024-09-10 10:00:00', '2024-09-10 11:30:00'),
-  (1, 'Sesion 2', 'Practica', '2024-09-10 11:30:00', '2024-09-10 13:00:00'),
-  (2, 'Sesion 1', 'Charla principal', '2024-09-12 09:00:00', '2024-09-12 10:00:00'),
-  (2, 'Sesion 2', 'Preguntas', '2024-09-12 10:00:00', '2024-09-12 11:00:00'),
-  (3, 'Sesion 1', 'Conceptos basicos', '2024-09-15 16:00:00', '2024-09-15 18:00:00'),
-  (3, 'Sesion 2', 'Practicas', '2024-09-17 16:00:00', '2024-09-17 18:00:00');
+  (1, 'Sesion 1', 'Introduccion', '2025-03-10 10:00:00', '2025-03-10 11:30:00'),
+  (1, 'Sesion 2', 'Practica', '2025-03-10 11:30:00', '2025-03-10 13:00:00'),
+  (2, 'Sesion 1', 'Charla principal', '2025-03-12 09:00:00', '2025-03-12 10:00:00'),
+  (2, 'Sesion 2', 'Preguntas', '2025-03-12 10:00:00', '2025-03-12 11:00:00'),
+  (3, 'Sesion 1', 'Conceptos basicos', '2025-03-15 16:00:00', '2025-03-15 18:00:00'),
+  (3, 'Sesion 2', 'Practicas', '2025-03-17 16:00:00', '2025-03-17 18:00:00');
