@@ -299,13 +299,19 @@ CREATE TABLE actividades_asistencia_sesiones (
   miembro_id INT NOT NULL,
 
   asistio TINYINT(1) DEFAULT 0,
+  calificacion DECIMAL(5,2) NULL,
   registrado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   UNIQUE (sesion_id, miembro_id),
 
   FOREIGN KEY (actividad_id) REFERENCES actividades(id) ON DELETE CASCADE,
   FOREIGN KEY (sesion_id) REFERENCES actividades_sesiones(id) ON DELETE CASCADE,
-  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE
+  FOREIGN KEY (miembro_id) REFERENCES miembros(id) ON DELETE CASCADE,
+
+  CHECK (
+    calificacion IS NULL
+    OR (calificacion >= 0 AND calificacion <= 100)
+  )
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_asistencia_sesion_sesion ON actividades_asistencia_sesiones(sesion_id);
