@@ -488,3 +488,21 @@ INSERT INTO actividades_sesiones (
   (2, 'Sesion 2', 'Preguntas', '2025-03-12 10:00:00', '2025-03-12 11:00:00'),
   (3, 'Sesion 1', 'Conceptos basicos', '2025-03-15 16:00:00', '2025-03-15 18:00:00'),
   (3, 'Sesion 2', 'Practicas', '2025-03-17 16:00:00', '2025-03-17 18:00:00');
+
+-- =========================================================
+-- INSCRIPCIONES Y ASISTENCIA (DATOS DE PRUEBA)
+-- =========================================================
+
+INSERT INTO actividades_inscripciones (actividad_id, miembro_id, estado) VALUES
+  (3, 1, 'Inscrito'),
+  (3, 2, 'Inscrito'),
+  (3, 3, 'Inscrito');
+
+-- La Actividad 3 (Curso de Redes) tiene los IDs de sesion 5 y 6.
+INSERT INTO actividades_asistencia_sesiones (actividad_id, sesion_id, miembro_id, asistio, calificacion) VALUES
+  -- Miembro 1 asiste a ambas (100% de asistencia, listo para creditos)
+  (3, 5, 1, 1, 95.00), (3, 6, 1, 1, 100.00),
+  -- Miembro 2 asiste solo a la primera (50%)
+  (3, 5, 2, 1, 85.00), (3, 6, 2, 0, NULL),
+  -- Miembro 3 falta a la primera, asiste a la segunda (50%)
+  (3, 5, 3, 0, NULL),  (3, 6, 3, 1, 90.00);
