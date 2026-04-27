@@ -128,6 +128,7 @@ CREATE TABLE capitulos_miembros (
   miembro_id INT NOT NULL,
   estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
   motivo VARCHAR(255),
+  motivo_rechazo VARCHAR(255) NULL,
   calificacion_general DECIMAL(5,2) NULL,
 
   fecha_ingreso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -451,14 +452,14 @@ INSERT INTO capitulos_asesores (capitulo_id, asesor_id, tipo, creado_en) VALUES
   (3, 4, 'Tesorero', '2025-02-14 12:10:00');
 
 INSERT INTO capitulos_miembros (
-  capitulo_id, miembro_id, estado, motivo, calificacion_general, fecha_ingreso, creado_en
+  capitulo_id, miembro_id, estado, motivo, motivo_rechazo, calificacion_general, fecha_ingreso, creado_en
 ) VALUES
-  (3, 1, 'Activo', NULL, 92.50, '2025-02-11 09:00:00', '2025-02-11 09:00:00'),
-  (3, 2, 'Activo', NULL, 88.00, '2025-02-11 09:10:00', '2025-02-11 09:10:00'),
-  (3, 3, 'Activo', NULL, 90.00, '2025-02-11 09:20:00', '2025-02-11 09:20:00'),
-  (3, 7, 'Inactivo', 'Quiero participar en el capitulo para aprender y apoyar.', NULL, '2025-03-01 08:00:00', '2025-03-01 08:00:00'),
-  (3, 8, 'Inactivo', 'Me interesa asistir a actividades y obtener creditos.', NULL, '2025-03-02 08:15:00', '2025-03-02 08:15:00'),
-  (2, 9, 'Inactivo', 'Busco experiencia en proyectos del capitulo.', NULL, '2025-03-03 08:30:00', '2025-03-03 08:30:00');
+  (3, 1, 'Activo', NULL, NULL, 92.50, '2025-02-11 09:00:00', '2025-02-11 09:00:00'),
+  (3, 2, 'Activo', NULL, NULL, 88.00, '2025-02-11 09:10:00', '2025-02-11 09:10:00'),
+  (3, 3, 'Activo', NULL, NULL, 90.00, '2025-02-11 09:20:00', '2025-02-11 09:20:00'),
+  (3, 7, 'Inactivo', 'Quiero participar en el capitulo para aprender y apoyar.', NULL, NULL, '2025-03-01 08:00:00', '2025-03-01 08:00:00'),
+  (3, 8, 'Inactivo', 'Me interesa asistir a actividades y obtener creditos.', NULL, NULL, '2025-03-02 08:15:00', '2025-03-02 08:15:00'),
+  (2, 9, 'Inactivo', 'Busco experiencia en proyectos del capitulo.', NULL, NULL, '2025-03-03 08:30:00', '2025-03-03 08:30:00');
 
 INSERT INTO actividades (
   id, capitulo_id, tipo, titulo, descripcion, lugar, cupo,
