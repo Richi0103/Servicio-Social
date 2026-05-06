@@ -28,6 +28,23 @@ INSERT INTO roles (nombre, descripcion) VALUES
   ('Secretario', 'Rol de encargatura para seguimiento administrativo del capitulo'),
   ('Tesorero', 'Rol de encargatura para gestion de recursos y costos del capitulo');
 
+-- =========================================================
+-- TECNOLOGICOS (CAMPUS TECNM)
+-- =========================================================
+
+CREATE TABLE tecnologicos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  clave VARCHAR(30) UNIQUE,
+  nombre VARCHAR(150) NOT NULL,
+  estado VARCHAR(100),
+  ciudad VARCHAR(100),
+  activo TINYINT(1) DEFAULT 1,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT INTO tecnologicos (id, clave, nombre, estado, ciudad) VALUES
+  (1, 'ITM', 'Instituto Tecnológico de Morelia', 'Michoacán', 'Morelia');
+
 CREATE TABLE miembros (
   id INT AUTO_INCREMENT PRIMARY KEY,
   numero_control VARCHAR(30),
@@ -41,11 +58,13 @@ CREATE TABLE miembros (
   activo TINYINT(1) DEFAULT 1,
   verificado TINYINT(1) DEFAULT 0,
   permiso_crear_capitulo TINYINT(1) DEFAULT 0,
-  tecnologico VARCHAR(150),
+  tecnologico_id INT NULL,
 
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  eliminado_en TIMESTAMP NULL DEFAULT NULL
+  eliminado_en TIMESTAMP NULL DEFAULT NULL,
+
+  FOREIGN KEY (tecnologico_id) REFERENCES tecnologicos(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_miembros_numero_control ON miembros(numero_control);
@@ -408,15 +427,15 @@ DELIMITER ;
 
 INSERT INTO miembros (
   id, numero_control, nombre, apellidos, username, email, telefono,
-  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico,
+  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico_id,
   creado_en, actualizado_en
 ) VALUES
-  (1, '22120001', 'Juan', 'Perez', 'juan.perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:00:00', '2025-01-08 09:00:00'),
-  (2, '22120002', 'Daniela', 'Lopez', 'daniela.lopez', 'dani.lopez@tec.com', '4430000002', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:10:00', '2025-01-08 09:10:00'),
-  (3, '22120003', 'Luis', 'Garcia', 'luis.garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:20:00', '2025-01-08 09:20:00'),
-  (4, '22120004', 'Ana', 'Ramirez', 'ana.ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:30:00', '2025-01-08 09:30:00'),
-  (5, '22120005', 'Carlos', 'Santos', 'carlos.santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 1, 0, 'Instituto Tecnologico de Morelia', '2025-01-08 09:40:00', '2025-01-08 09:40:00'),
-  (6, '22120006', 'Rogelio', 'CIA', 'rogelio.cia', 'rogelio@tec.com', '4430000006', '1234', NULL, 1, 1, 1, 'Instituto Tecnologico de Morelia', '2025-01-08 10:00:00', '2025-01-08 10:00:00');
+  (1, '22120001', 'Juan', 'Perez', 'juan.perez', 'juan.perez@tec.com', '4430000001', '1234', NULL, 1, 1, 0, 1, '2025-01-08 09:00:00', '2025-01-08 09:00:00'),
+  (2, '22120002', 'Daniela', 'Lopez', 'daniela.lopez', 'dani.lopez@tec.com', '4430000002', '1234', NULL, 1, 1, 0, 1, '2025-01-08 09:10:00', '2025-01-08 09:10:00'),
+  (3, '22120003', 'Luis', 'Garcia', 'luis.garcia', 'luis.garcia@tec.com', '4430000003', '1234', NULL, 1, 1, 0, 1, '2025-01-08 09:20:00', '2025-01-08 09:20:00'),
+  (4, '22120004', 'Ana', 'Ramirez', 'ana.ramirez', 'ana.ramirez@tec.com', '4430000004', '1234', NULL, 1, 1, 0, 1, '2025-01-08 09:30:00', '2025-01-08 09:30:00'),
+  (5, '22120005', 'Carlos', 'Santos', 'carlos.santos', 'carlos.santos@tec.com', '4430000005', '1234', NULL, 1, 1, 0, 1, '2025-01-08 09:40:00', '2025-01-08 09:40:00'),
+  (6, '22120006', 'Rogelio', 'CIA', 'rogelio.cia', 'rogelio@tec.com', '4430000006', '1234', NULL, 1, 1, 1, 1, '2025-01-08 10:00:00', '2025-01-08 10:00:00');
 
 -- =========================================================
 -- SOLICITUDES DE PRUEBA (MIEMBROS + CAPITULOS_MIEMBROS)
@@ -424,12 +443,12 @@ INSERT INTO miembros (
 
 INSERT INTO miembros (
   id, numero_control, nombre, apellidos, username, email, telefono,
-  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico,
+  password_hash, foto_perfil, activo, verificado, permiso_crear_capitulo, tecnologico_id,
   creado_en, actualizado_en
 ) VALUES
-  (7, '23120101', 'Mariana', 'Lopez', 'mariana.lopez', 'mariana.lopez@tec.com', '4430001001', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia', '2025-02-01 08:30:00', '2025-02-01 08:30:00'),
-  (8, '23120102', 'Ivan', 'Garcia', 'ivan.garcia', 'ivan.garcia@tec.com', '4430001002', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia', '2025-02-02 09:00:00', '2025-02-02 09:00:00'),
-  (9, '23120103', 'Carla', 'Sanchez', 'carla.sanchez', 'carla.sanchez@tec.com', '4430001003', '1234', NULL, 0, 0, 0, 'Instituto Tecnologico de Morelia', '2025-02-03 09:15:00', '2025-02-03 09:15:00');
+  (7, '23120101', 'Mariana', 'Lopez', 'mariana.lopez', 'mariana.lopez@tec.com', '4430001001', '1234', NULL, 0, 0, 0, 1, '2025-02-01 08:30:00', '2025-02-01 08:30:00'),
+  (8, '23120102', 'Ivan', 'Garcia', 'ivan.garcia', 'ivan.garcia@tec.com', '4430001002', '1234', NULL, 0, 0, 0, 1, '2025-02-02 09:00:00', '2025-02-02 09:00:00'),
+  (9, '23120103', 'Carla', 'Sanchez', 'carla.sanchez', 'carla.sanchez@tec.com', '4430001003', '1234', NULL, 0, 0, 0, 1, '2025-02-03 09:15:00', '2025-02-03 09:15:00');
 
 INSERT INTO miembros_roles (miembro_id, rol_id) VALUES
   (1, 1),
